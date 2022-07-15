@@ -43,7 +43,8 @@ extension Radio.Vod: Identifiable {
 extension Radio.Vod {
     var radioUrl: URL {
     // jtplayer://abcdsfl.com
-        let ss = downURL.replacingOccurrences(of: "http://", with: "jtplayer://")
+        // let ss = downURL.replacingOccurrences(of: "http://", with: "jtplayer://" )
+        let ss = downURL.replacingOccurrences(of: "http://", with: "jtplayer://", options: .caseInsensitive, range: downURL.startIndex..<downURL.index(downURL.startIndex, offsetBy: 7))
         return URL(string: ss) ?? URL(string: "http://app.fm.hebrbtv.com/CMSNEWSIMG/pubNode_add_saveImg/www1/2021-08/26/pubNode_86409535914806397797435.jpg")!
     }
 }
