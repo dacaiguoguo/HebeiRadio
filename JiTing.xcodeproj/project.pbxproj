@@ -1,0 +1,378 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9D5B0F9327DB712E00140A2D /* Loader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D5B0F9227DB712E00140A2D /* Loader.swift */; };
+		9DEBE00C27980BD000E151BC /* JiTingApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEBE00B27980BD000E151BC /* JiTingApp.swift */; };
+		9DEBE00E27980BD000E151BC /* ChannelListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEBE00D27980BD000E151BC /* ChannelListView.swift */; };
+		9DEBE01027980BD200E151BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9DEBE00F27980BD200E151BC /* Assets.xcassets */; };
+		9DEBE01327980BD200E151BC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9DEBE01227980BD200E151BC /* Preview Assets.xcassets */; };
+		9DEBE01A27980F7700E151BC /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEBE01927980F7700E151BC /* Channel.swift */; };
+		9DEBE01C2798102F00E151BC /* ChannelList.json in Resources */ = {isa = PBXBuildFile; fileRef = 9DEBE01B2798102F00E151BC /* ChannelList.json */; };
+		9DEBE01F2798227100E151BC /* NodeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEBE01E2798227100E151BC /* NodeListView.swift */; };
+		9DEBE0212798228D00E151BC /* Noder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEBE0202798228D00E151BC /* Noder.swift */; };
+		9DEBE024279835C300E151BC /* Radior.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEBE022279835C300E151BC /* Radior.swift */; };
+		9DEBE025279835C300E151BC /* RadioListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEBE023279835C300E151BC /* RadioListView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9D5B0F9227DB712E00140A2D /* Loader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Loader.swift; sourceTree = "<group>"; };
+		9DEBE00827980BD000E151BC /* JiTing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JiTing.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9DEBE00B27980BD000E151BC /* JiTingApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JiTingApp.swift; sourceTree = "<group>"; };
+		9DEBE00D27980BD000E151BC /* ChannelListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelListView.swift; sourceTree = "<group>"; };
+		9DEBE00F27980BD200E151BC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9DEBE01227980BD200E151BC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		9DEBE01927980F7700E151BC /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
+		9DEBE01B2798102F00E151BC /* ChannelList.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ChannelList.json; sourceTree = "<group>"; };
+		9DEBE01D2798168300E151BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		9DEBE01E2798227100E151BC /* NodeListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeListView.swift; sourceTree = "<group>"; };
+		9DEBE0202798228D00E151BC /* Noder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Noder.swift; sourceTree = "<group>"; };
+		9DEBE022279835C300E151BC /* Radior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Radior.swift; sourceTree = "<group>"; };
+		9DEBE023279835C300E151BC /* RadioListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioListView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9DEBE00527980BD000E151BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9DEBDFFF27980BD000E151BC = {
+			isa = PBXGroup;
+			children = (
+				9DEBE00A27980BD000E151BC /* JiTing */,
+				9DEBE00927980BD000E151BC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9DEBE00927980BD000E151BC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9DEBE00827980BD000E151BC /* JiTing.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9DEBE00A27980BD000E151BC /* JiTing */ = {
+			isa = PBXGroup;
+			children = (
+				9DEBE00F27980BD200E151BC /* Assets.xcassets */,
+				9DEBE01927980F7700E151BC /* Channel.swift */,
+				9D5B0F9227DB712E00140A2D /* Loader.swift */,
+				9DEBE01B2798102F00E151BC /* ChannelList.json */,
+				9DEBE00D27980BD000E151BC /* ChannelListView.swift */,
+				9DEBE01D2798168300E151BC /* Info.plist */,
+				9DEBE00B27980BD000E151BC /* JiTingApp.swift */,
+				9DEBE01E2798227100E151BC /* NodeListView.swift */,
+				9DEBE0202798228D00E151BC /* Noder.swift */,
+				9DEBE01127980BD200E151BC /* Preview Content */,
+				9DEBE023279835C300E151BC /* RadioListView.swift */,
+				9DEBE022279835C300E151BC /* Radior.swift */,
+			);
+			path = JiTing;
+			sourceTree = "<group>";
+		};
+		9DEBE01127980BD200E151BC /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				9DEBE01227980BD200E151BC /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9DEBE00727980BD000E151BC /* JiTing */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9DEBE01627980BD200E151BC /* Build configuration list for PBXNativeTarget "JiTing" */;
+			buildPhases = (
+				9DEBE00427980BD000E151BC /* Sources */,
+				9DEBE00527980BD000E151BC /* Frameworks */,
+				9DEBE00627980BD000E151BC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JiTing;
+			productName = JiTing;
+			productReference = 9DEBE00827980BD000E151BC /* JiTing.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9DEBE00027980BD000E151BC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1320;
+				LastUpgradeCheck = 1320;
+				TargetAttributes = {
+					9DEBE00727980BD000E151BC = {
+						CreatedOnToolsVersion = 13.2.1;
+					};
+				};
+			};
+			buildConfigurationList = 9DEBE00327980BD000E151BC /* Build configuration list for PBXProject "JiTing" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9DEBDFFF27980BD000E151BC;
+			productRefGroup = 9DEBE00927980BD000E151BC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9DEBE00727980BD000E151BC /* JiTing */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9DEBE00627980BD000E151BC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9DEBE01327980BD200E151BC /* Preview Assets.xcassets in Resources */,
+				9DEBE01027980BD200E151BC /* Assets.xcassets in Resources */,
+				9DEBE01C2798102F00E151BC /* ChannelList.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9DEBE00427980BD000E151BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9DEBE024279835C300E151BC /* Radior.swift in Sources */,
+				9DEBE025279835C300E151BC /* RadioListView.swift in Sources */,
+				9DEBE00E27980BD000E151BC /* ChannelListView.swift in Sources */,
+				9DEBE01A27980F7700E151BC /* Channel.swift in Sources */,
+				9DEBE01F2798227100E151BC /* NodeListView.swift in Sources */,
+				9DEBE00C27980BD000E151BC /* JiTingApp.swift in Sources */,
+				9D5B0F9327DB712E00140A2D /* Loader.swift in Sources */,
+				9DEBE0212798228D00E151BC /* Noder.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9DEBE01427980BD200E151BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		9DEBE01527980BD200E151BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		9DEBE01727980BD200E151BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"JiTing/Preview Content\"";
+				DEVELOPMENT_TEAM = KB7B8SQENU;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JiTing/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Lvmama.JiTing;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9DEBE01827980BD200E151BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"JiTing/Preview Content\"";
+				DEVELOPMENT_TEAM = KB7B8SQENU;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JiTing/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Lvmama.JiTing;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9DEBE00327980BD000E151BC /* Build configuration list for PBXProject "JiTing" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9DEBE01427980BD200E151BC /* Debug */,
+				9DEBE01527980BD200E151BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9DEBE01627980BD200E151BC /* Build configuration list for PBXNativeTarget "JiTing" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9DEBE01727980BD200E151BC /* Debug */,
+				9DEBE01827980BD200E151BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9DEBE00027980BD000E151BC /* Project object */;
+}
