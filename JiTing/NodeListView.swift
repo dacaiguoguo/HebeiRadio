@@ -9,11 +9,11 @@ import SwiftUI
 
 struct NodeListView: View {
     @ObservedObject var noder:Noder
-
+    @EnvironmentObject var user: User
     var body: some View {
         List {
             ForEach(noder.nodeDataList) { node in
-                NavigationLink(destination: RadioListView(radior: Radior(channelID: node.channelID, nodeID: node.nodeID)).navigationTitle("历史记录")) {
+                NavigationLink(destination: RadioListView(radior: Radior(channelID: node.channelID, nodeID: node.nodeID)).navigationTitle("历史记录").environmentObject(user)) {
                     NodeRowView(node: node).padding()
                 }
             }

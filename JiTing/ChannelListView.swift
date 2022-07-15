@@ -9,11 +9,11 @@ import SwiftUI
 
 struct ChannelListView: View {
     let channelLocalDataList: [Channel]
-
+    @EnvironmentObject var user: User
     var body: some View {
         List {
             ForEach(channelLocalDataList) { channel in
-                NavigationLink(destination: NodeListView(noder: Noder(channelID: channel.channelID)).navigationTitle("频道栏目")) {
+                NavigationLink(destination: NodeListView(noder: Noder(channelID: channel.channelID)).navigationTitle("频道栏目").environmentObject(user)) {
                     ChannelRowView(channel: channel).padding()
                 }
 

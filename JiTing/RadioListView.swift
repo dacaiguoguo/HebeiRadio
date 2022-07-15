@@ -6,34 +6,23 @@
 //
 
 import SwiftUI
-import SafariServices
 
-struct SafariView: UIViewControllerRepresentable {
-    typealias UIViewControllerType = SFSafariViewController
-
-    var url: URL?
-
-    func makeUIViewController(context: UIViewControllerRepresentableContext<SafariView>) -> SFSafariViewController {
-        return SFSafariViewController(url: url!)
-    }
-
-    func updateUIViewController(_ safariViewController: SFSafariViewController, context: UIViewControllerRepresentableContext<SafariView>) {
-    }
-}
 
 
 struct RadioListView: View {
     @ObservedObject var radior:Radior
-    @State var showSafari = false
+    @EnvironmentObject var user: User
 
     var body: some View {
         List {
             ForEach(radior.dataList) { radio in
                 HStack {
-                    NavigationLink(destination:SafariView(url:radio.radioUrl)) {
                         Text(radio.name)
                         Text(radio.fileSize)
-                    }
+
+                }.onTapGesture {
+                    user.purl = radio.radioUrl.absoluteString
+                    user.index = 1
                 }.padding()
             }
         }.task {
