@@ -30,10 +30,10 @@ struct RadioListView: View {
         List {
             ForEach(radior.dataList) { radio in
                 HStack {
-                    NavigationLink(destination:SafariView(url:radio.radioUrl)) {
+                    Link(destination:radio.radioUrl) {
                         Text(radio.name)
-                        Text(radio.fileSize)
                     }
+                    Text(radio.fileSize)
                 }.padding()
             }
         }.task {
