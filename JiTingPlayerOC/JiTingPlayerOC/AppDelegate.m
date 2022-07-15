@@ -22,6 +22,13 @@
     self.navigationController = [[UINavigationController alloc] initWithRootViewController:self.safariController];
     self.window.rootViewController = self.navigationController;
     [self.window makeKeyAndVisible];
+
+    if (!_safari) {
+        NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];
+        if (destUrl) {
+            _safari = [[SFSafariViewController alloc] initWithURL:destUrl];
+        }
+    }
     return YES;
 }
 
@@ -36,6 +43,7 @@
 
     }];
     self.safari = [[SFSafariViewController alloc] initWithURL:destUrl];
+    [NSUserDefaults.standardUserDefaults setURL:destUrl forKey:@"destUrl"];
     self.safari.delegate = self;
     [self.navigationController presentViewController:self.safari animated:YES completion:^{
 
@@ -45,11 +53,11 @@
 
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller {
 //    self.safari = nil;
-    [self.safariController.statusButton addTarget:self action:@selector(statusAction:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)statusAction:(UIButton *)sender {
-    [self.navigationController presentViewController:self.safari animated:YES completion:^{
+
+    [self.navigationController presentViewController:_safari animated:YES completion:^{
 
     }];
 }

@@ -13,6 +13,7 @@
 		9DA0A493288146E600F67E53 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9DA0A491288146E600F67E53 /* LaunchScreen.storyboard */; };
 		9DA0A496288146E600F67E53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA0A495288146E600F67E53 /* main.m */; };
 		9DA0A49E288146FF00F67E53 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA0A49D288146FF00F67E53 /* SafariServices.framework */; };
+		9DA0A4A02881810100F67E53 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA0A49F2881810100F67E53 /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		9DA0A494288146E600F67E53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DA0A495288146E600F67E53 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9DA0A49D288146FF00F67E53 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
+		9DA0A49F2881810100F67E53 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +35,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DA0A4A02881810100F67E53 /* WebKit.framework in Frameworks */,
 				9DA0A49E288146FF00F67E53 /* SafariServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -75,6 +78,7 @@
 		9DA0A49C288146FF00F67E53 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9DA0A49F2881810100F67E53 /* WebKit.framework */,
 				9DA0A49D288146FF00F67E53 /* SafariServices.framework */,
 			);
 			name = Frameworks;
