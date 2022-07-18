@@ -17,6 +17,7 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    NSLog(@"NSHomeDirectory%@", NSHomeDirectory());
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.safariController = [[ViewController alloc] init];
     self.navigationController = [[UINavigationController alloc] initWithRootViewController:self.safariController];
@@ -42,12 +43,21 @@
     [self.safari dismissViewControllerAnimated:YES completion:^{
 
     }];
-    self.safari = [[SFSafariViewController alloc] initWithURL:destUrl];
+//    self.safari = [[SFSafariViewController alloc] initWithURL:destUrl];
     [NSUserDefaults.standardUserDefaults setURL:destUrl forKey:@"destUrl"];
-    self.safari.delegate = self;
-    [self.navigationController presentViewController:self.safari animated:YES completion:^{
-
-    }];
+    NSMutableArray *array = [NSUserDefaults.standardUserDefaults arrayForKey:@"playList"].mutableCopy;
+    if (!array) {
+        array = [NSMutableArray array];
+    }
+    if (![array containsObject:destUrl]) {
+        [array addObject:[destUrl dataRepresentation]];
+    }
+    [NSUserDefaults.standardUserDefaults setObject:array forKey:@"playList"];
+    [self.safariController loadAction:@"playList"];
+//    self.safari.delegate = self;
+//    [self.navigationController presentViewController:self.safari animated:YES completion:^{
+//
+//    }];
     return YES;
 }
 
@@ -60,5 +70,9 @@
     [self.navigationController presentViewController:_safari animated:YES completion:^{
 
     }];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+
 }
 @end
