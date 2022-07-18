@@ -77,6 +77,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.tempRow = -1;
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
     self.view.backgroundColor = UIColor.whiteColor;
@@ -183,6 +184,11 @@
     NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
     cell.nameLabel.text = [url.absoluteString substringFromIndex:@"http://vod.fm.hebrbtv.com:9600/vod2/xw/".length];
     cell.nameLabel.numberOfLines = 0;
+    cell.contentView.backgroundColor = UIColor.whiteColor;
+    NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];
+    if ([destUrl.path isEqualToString:url.path]) {
+        cell.contentView.backgroundColor = [UIColor colorWithRed:0xbb/255.0 green:0xff/255.0 blue:0xaa/255.0 alpha:1];
+    }
     cell.pickerView.delegate = self;
     cell.pickerView.dataSource = self;
     return cell;
@@ -209,8 +215,15 @@
 
     UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:title message:tTime preferredStyle:UIAlertControllerStyleAlert];
     [editRadiusAlert setValue:vc forKey:@"contentViewController"];
+    UIAlertAction *playAction = [UIAlertAction actionWithTitle:@"直接播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+        [NSUserDefaults.standardUserDefaults setURL:url forKey:@"destUrl"];
+        [self.statusView updateWebview];
+        [self loadAction:@"playListPlay"];
+    }];
+    [editRadiusAlert addAction:playAction];
+
     UIAlertAction *doneAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-        if (self.tempRow > 0) {
+        if (self.tempRow >= 0) {
             coms.fragment = [NSString stringWithFormat:@"t=%ld", (long)self.tempRow * 60];
             NSURL *modifyUrl = coms.URL;
             NSMutableArray *mut = self.playList.mutableCopy;
@@ -219,6 +232,7 @@
             [NSUserDefaults.standardUserDefaults setObject:mut forKey:@"playList"];
             [self.statusView updateWebview];
             [self loadAction:@"playListModify"];
+            self.tempRow = -1;
         }
     }];
     [editRadiusAlert addAction:doneAction];
