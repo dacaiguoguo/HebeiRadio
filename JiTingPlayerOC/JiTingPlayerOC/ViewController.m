@@ -30,18 +30,27 @@
 
 @end
 
-@interface PlayerHeaderView ()
+@interface PlayerHeaderView ()<WKScriptMessageHandler>
 @property (nonatomic, strong) WKWebView *contentWebView;
+@property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, strong) NSURL *pUrl;
 - (void)updateWebview;
+- (void)updateWebviewUrl:(NSURL *)url;
 @end
 
 @implementation PlayerHeaderView
+- (void)updateWebviewUrl:(NSURL *)url {
+    self.pUrl = url;
+    [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.pUrl]];
+}
+
 - (void)updateWebview {
     [self.contentWebView removeFromSuperview];
     WKWebsiteDataStore *dataStore = [WKWebsiteDataStore defaultDataStore];
     WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
     config.websiteDataStore = dataStore;
     config.allowsInlineMediaPlayback = YES;
+    [config.userContentController addScriptMessageHandler:self name:@"lvJSCallNativeHandler"];
     config.processPool = [[WKProcessPool alloc] init];
     self.contentWebView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 100, self.bounds.size.width, 100) configuration:config];
     [self addSubview:self.contentWebView];
@@ -52,7 +61,25 @@
     self.contentWebView.backgroundColor = UIColor.darkGrayColor;
     self.contentWebView.opaque = NO;
     self.contentWebView.scrollView.backgroundColor = UIColor.darkGrayColor;
+    [self.timer invalidate];
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [self.contentWebView evaluateJavaScript:@"window.webkit.messageHandlers.lvJSCallNativeHandler.postMessage(`${document.getElementsByTagName('video')[0].currentTime}`)"
+                              completionHandler:^(id _Nullable obj, NSError * _Nullable error) {
+            NSLog(@"%@", obj);
+        }];
+    }];
 }
+
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+    // NSLog(@"didReceiveScriptMessage:%@", message.body);
+    NSString *bodys = message.body;
+    NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];
+    NSURLComponents *coms = [NSURLComponents componentsWithURL:destUrl resolvingAgainstBaseURL:NO];
+    coms.fragment = [NSString stringWithFormat:@"t=%d", bodys.intValue];
+    NSURL *modifyUrl = coms.URL;
+    [NSUserDefaults.standardUserDefaults setURL:modifyUrl forKey:@"destUrl"];
+}
+
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
@@ -96,14 +123,14 @@
         make.height.equalTo(@(60));
     }];
 
-//    self.statusButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//    self.statusButton.backgroundColor = UIColor.greenColor;
-//    self.statusButton.layer.cornerRadius = 8;
-//    self.statusButton.layer.masksToBounds = YES;
-//    [self.view addSubview:self.statusButton];
-//    self.statusButton.frame = CGRectMake(0, 0, 100, 100);
-//    self.statusButton.center = self.view.center;
-//    [self.statusButton addTarget:UIApplication.sharedApplication.delegate action:@selector(statusAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.statusButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.statusButton.backgroundColor = UIColor.greenColor;
+    self.statusButton.layer.cornerRadius = 8;
+    self.statusButton.layer.masksToBounds = YES;
+    [self.view addSubview:self.statusButton];
+    self.statusButton.frame = CGRectMake(0, 0, 100, 100);
+    self.statusButton.center = self.view.center;
+    [self.statusButton addTarget:UIApplication.sharedApplication.delegate action:@selector(statusAction:) forControlEvents:UIControlEventTouchUpInside];
     [self loadAction:nil];
 
 }
@@ -119,7 +146,7 @@
         NSURLComponents *coms = [NSURLComponents componentsWithURL:destUrl resolvingAgainstBaseURL:NO];
         NSURLComponents *retcoms = [NSURLComponents componentsWithURL:ret resolvingAgainstBaseURL:NO];
         retcoms.fragment = coms.fragment;
-        [self.statusView.contentWebView loadRequest:[NSURLRequest requestWithURL:retcoms.URL]];
+        [self.statusView updateWebviewUrl:retcoms.URL];
     } else {
         NSURLRequest *request = [NSURLRequest requestWithURL:destUrl];
         NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
@@ -129,7 +156,7 @@
                 return;
             }
             NSLog(@"File downloaded to: %@", filePath);
-            [self.statusView.contentWebView loadRequest:[NSURLRequest requestWithURL:filePath]];
+            [self.statusView updateWebviewUrl:filePath];
         }];
         [downloadTask resume];
     }
@@ -140,7 +167,6 @@
 }
 
 - (void)statusAction:(UIButton *)sender {
-
 }
 
 - (nullable NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
@@ -199,8 +225,8 @@
     NSData *data = [self.playList objectAtIndex:indexPath.row];
     NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
     UIViewController *vc = [[UIViewController alloc] init];
-    vc.preferredContentSize = CGSizeMake(250, 300);
-    UIPickerView *pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, 250, 300)];
+    vc.preferredContentSize = CGSizeMake(self.view.bounds.size.width, 200);
+    UIPickerView *pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 200)];
     pickerView.delegate = self;
     pickerView.dataSource = self;
     [vc.view addSubview:pickerView];
@@ -213,7 +239,7 @@
         }
     }
 
-    UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:title message:tTime preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:title message:tTime preferredStyle:UIAlertControllerStyleActionSheet];
     [editRadiusAlert setValue:vc forKey:@"contentViewController"];
     UIAlertAction *playAction = [UIAlertAction actionWithTitle:@"直接播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
         [NSUserDefaults.standardUserDefaults setURL:url forKey:@"destUrl"];

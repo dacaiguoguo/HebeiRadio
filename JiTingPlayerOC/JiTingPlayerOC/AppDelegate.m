@@ -17,19 +17,19 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    NSLog(@"NSHomeDirectory%@", NSHomeDirectory());
+    NSLog(@"%@", NSHomeDirectory());
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.safariController = [[ViewController alloc] init];
     self.navigationController = [[UINavigationController alloc] initWithRootViewController:self.safariController];
     self.window.rootViewController = self.navigationController;
     [self.window makeKeyAndVisible];
 
-    if (!_safari) {
-        NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];
-        if (destUrl) {
-            _safari = [[SFSafariViewController alloc] initWithURL:destUrl];
-        }
-    }
+//    if (!_safari) {
+//        NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];
+//        if (destUrl) {
+//            _safari = [[SFSafariViewController alloc] initWithURL:destUrl];
+//        }
+//    }
     return YES;
 }
 
@@ -67,9 +67,9 @@
 
 - (void)statusAction:(UIButton *)sender {
 
-    [self.navigationController presentViewController:_safari animated:YES completion:^{
-
-    }];
+//    [self.navigationController presentViewController:_safari animated:YES completion:^{
+//
+//    }];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
