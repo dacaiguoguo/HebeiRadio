@@ -4,7 +4,9 @@
 //
 //  Created by yanguo sun on 2022/7/15.
 //
-
+// todo 显示下载进度条
+// todo 下载的空文件进行标记 或者移除，如果下载的是空文件，那么当前播放的文件就变为list第一个？还是历史记录第一个？
+// list 是否要根据播放记录 排序？还是存储记录排序？
 #import "ViewController.h"
 #import "PlayerTableViewCell.h"
 #import "Masonry.h"
@@ -27,6 +29,20 @@
     return ret;
 }
 
+
+@end
+
+@implementation NSURL(fsh)
+
+- (NSString *)title {
+    NSURLComponents *coms = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:NO];
+    for (NSURLQueryItem *item in coms.queryItems) {
+        if ([item.name isEqualToString:@"title"]) {
+            return item.value;
+        }
+    }
+    return nil;
+}
 
 @end
 
@@ -232,7 +248,9 @@
     PlayerTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PlayerTableViewCell" forIndexPath:indexPath];
     NSData *data = [self.playList objectAtIndex:indexPath.row];
     NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
-    if (url.fragment) {
+    if (url.title) {
+        cell.nameLabel.text = [url.title stringByAppendingFormat:@"#%@", url.fragment?:@""];;
+    } else if (url.fragment) {
         cell.nameLabel.text = [url.path stringByAppendingFormat:@"#%@", url.fragment];
     } else {
         cell.nameLabel.text = url.path;
