@@ -49,7 +49,15 @@
     if (!array) {
         array = [NSMutableArray array];
     }
-    if (![array containsObject:destUrl]) {
+    BOOL hasAdd = NO;
+    for (NSData *data in array) {
+        NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
+        if ([url.path isEqualToString:destUrl.path]) {
+            hasAdd = YES;
+        }
+    }
+
+    if (!hasAdd) {
         [array addObject:[destUrl dataRepresentation]];
     }
     [NSUserDefaults.standardUserDefaults setObject:array forKey:@"playList"];

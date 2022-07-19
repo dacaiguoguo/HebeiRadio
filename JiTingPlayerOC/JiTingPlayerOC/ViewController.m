@@ -62,12 +62,13 @@
     self.contentWebView.opaque = NO;
     self.contentWebView.scrollView.backgroundColor = UIColor.darkGrayColor;
     [self.timer invalidate];
-//    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
-//        [self.contentWebView evaluateJavaScript:@"var temp = window.webkit.messageHandlers.lvJSCallNativeHandler.postMessage(`${document.getElementsByTagName('video')[0].currentTime}`)"
-//                              completionHandler:^(id _Nullable obj, NSError * _Nullable error) {
-////            NSLog(@"completionHandler:%@", obj);
-//        }];
-//    }];
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [self.contentWebView evaluateJavaScript:@"var temp = window.webkit.messageHandlers.lvJSCallNativeHandler.postMessage(`${document.getElementsByTagName('video')[0].currentTime}`)"
+                              completionHandler:^(id _Nullable obj, NSError * _Nullable error) {
+//            NSLog(@"completionHandler:%@", obj);
+        }];
+    }];
+    // https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/audio#属性
     // document.getElementsByTagName('video')[0].currentTime = 120; 可以直接修改
     // 可以用设置src来修改播放的文件，这样就不用更换的时候就重新创建webview了
     // document.getElementsByTagName('video')[0].src = "file:///Users/sunyanguo/Library/Developer/CoreSimulator/Devices/9856E35E-2A9F-4A9D-8B19-5EBD7C9D5CB8/data/Containers/Data/Application/C37EFEEE-F99A-4C7B-A9A6-A7C467B0AD46/Documents/59534E492EF1981126AE865C6BC8C569C2D600B3361B2CAF6F770E470320C1F6.mp4"
@@ -104,7 +105,13 @@
 @implementation ViewController {
     AFURLSessionManager *manager;
 }
-
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    for (NSData *data in self.playList) {
+        NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
+        NSLog(@"%@", url);
+    }
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.tempRow = -1;
@@ -126,14 +133,14 @@
         make.height.equalTo(@(60));
     }];
 
-    self.statusButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.statusButton.backgroundColor = UIColor.greenColor;
-    self.statusButton.layer.cornerRadius = 8;
-    self.statusButton.layer.masksToBounds = YES;
-    [self.view addSubview:self.statusButton];
-    self.statusButton.frame = CGRectMake(0, 0, 100, 100);
-    self.statusButton.center = self.view.center;
-    [self.statusButton addTarget:UIApplication.sharedApplication.delegate action:@selector(statusAction:) forControlEvents:UIControlEventTouchUpInside];
+    //    self.statusButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    //    self.statusButton.backgroundColor = UIColor.greenColor;
+    //    self.statusButton.layer.cornerRadius = 8;
+    //    self.statusButton.layer.masksToBounds = YES;
+    //    [self.view addSubview:self.statusButton];
+    //    self.statusButton.frame = CGRectMake(0, 0, 100, 100);
+    //    self.statusButton.center = self.view.center;
+    //    [self.statusButton addTarget:UIApplication.sharedApplication.delegate action:@selector(statusAction:) forControlEvents:UIControlEventTouchUpInside];
     [self loadAction:nil];
 
 }
@@ -146,6 +153,13 @@
     NSURL *documentsDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
     NSURL *ret = [documentsDirectoryURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.mp4", [destUrl.path SHA256]]];
     if ([NSFileManager.defaultManager fileExistsAtPath:ret.path]) {
+        NSDictionary<NSFileAttributeKey, id> *att =  [NSFileManager.defaultManager attributesOfItemAtPath:ret.path error:nil];
+        NSNumber *sizeNumber = att[NSFileSize];
+        if (sizeNumber.longValue == 0) {
+            NSLog(@"File empty not play");
+            // 应该alert移除这一条记录
+            return;
+        }
         NSURLComponents *coms = [NSURLComponents componentsWithURL:destUrl resolvingAgainstBaseURL:NO];
         NSURLComponents *retcoms = [NSURLComponents componentsWithURL:ret resolvingAgainstBaseURL:NO];
         retcoms.fragment = coms.fragment;
@@ -156,6 +170,13 @@
             return ret;
         } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
             if (error) {
+                return;
+            }
+            NSDictionary<NSFileAttributeKey, id> *att =  [NSFileManager.defaultManager attributesOfItemAtPath:filePath.path error:nil];
+            NSNumber *sizeNumber = att[NSFileSize];
+            if (sizeNumber.longValue == 0) {
+                NSLog(@"File empty downloaded");
+                // 应该alert移除这一条记录
                 return;
             }
             NSLog(@"File downloaded to: %@", filePath);
@@ -211,7 +232,11 @@
     PlayerTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PlayerTableViewCell" forIndexPath:indexPath];
     NSData *data = [self.playList objectAtIndex:indexPath.row];
     NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
-    cell.nameLabel.text = [url.absoluteString substringFromIndex:@"http://vod.fm.hebrbtv.com:9600/vod2/xw/".length];
+    if (url.fragment) {
+        cell.nameLabel.text = [url.path stringByAppendingFormat:@"#%@", url.fragment];
+    } else {
+        cell.nameLabel.text = url.path;
+    }
     cell.nameLabel.numberOfLines = 0;
     cell.contentView.backgroundColor = UIColor.whiteColor;
     NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];

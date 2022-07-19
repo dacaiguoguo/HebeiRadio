@@ -45,7 +45,11 @@ extension Radio.Vod {
     // jtplayer://abcdsfl.com
         // let ss = downURL.replacingOccurrences(of: "http://", with: "jtplayer://" )
         let ss = downURL.replacingOccurrences(of: "http://", with: "jtplayer://", options: .caseInsensitive, range: downURL.startIndex..<downURL.index(downURL.startIndex, offsetBy: 7))
-        return URL(string: ss) ?? URL(string: "http://app.fm.hebrbtv.com/CMSNEWSIMG/pubNode_add_saveImg/www1/2021-08/26/pubNode_86409535914806397797435.jpg")!
+        let ret = URL(string: ss) ?? URL(string: "http://app.fm.hebrbtv.com/CMSNEWSIMG/pubNode_add_saveImg/www1/2021-08/26/pubNode_86409535914806397797435.jpg")!
+        var coms = URLComponents(url: ret, resolvingAgainstBaseURL: false)
+        coms?.query = "title=\(name)"
+        let ret2 = (coms?.url)!;
+        return ret2;
     }
 }
 
