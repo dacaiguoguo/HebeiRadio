@@ -19,6 +19,7 @@
 		9D2C937828853F2900DE5F4C /* MASConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D2C936D28853F2800DE5F4C /* MASConstraint.m */; };
 		9D2C937928853F2900DE5F4C /* MASViewConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D2C936F28853F2800DE5F4C /* MASViewConstraint.m */; };
 		9D2C937A28853F2900DE5F4C /* MASViewAttribute.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D2C937028853F2800DE5F4C /* MASViewAttribute.m */; };
+		9D2C937D28867FA000DE5F4C /* PlayerHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D2C937C28867FA000DE5F4C /* PlayerHeaderView.m */; };
 		9DA0A485288146E400F67E53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA0A484288146E400F67E53 /* AppDelegate.m */; };
 		9DA0A48B288146E400F67E53 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA0A48A288146E400F67E53 /* ViewController.m */; };
 		9DA0A490288146E600F67E53 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9DA0A48F288146E600F67E53 /* Assets.xcassets */; };
@@ -60,6 +61,8 @@
 		9D2C936E28853F2800DE5F4C /* ViewController+MASAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ViewController+MASAdditions.h"; sourceTree = "<group>"; };
 		9D2C936F28853F2800DE5F4C /* MASViewConstraint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MASViewConstraint.m; sourceTree = "<group>"; };
 		9D2C937028853F2800DE5F4C /* MASViewAttribute.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MASViewAttribute.m; sourceTree = "<group>"; };
+		9D2C937B28867FA000DE5F4C /* PlayerHeaderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlayerHeaderView.h; sourceTree = "<group>"; };
+		9D2C937C28867FA000DE5F4C /* PlayerHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlayerHeaderView.m; sourceTree = "<group>"; };
 		9DA0A480288146E400F67E53 /* JiTingPlayerOC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JiTingPlayerOC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DA0A483288146E400F67E53 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		9DA0A484288146E400F67E53 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -155,6 +158,8 @@
 				9DA0A489288146E400F67E53 /* ViewController.h */,
 				9DA0A48A288146E400F67E53 /* ViewController.m */,
 				9D2C935228853A2A00DE5F4C /* PlayerTableViewCell.h */,
+				9D2C937B28867FA000DE5F4C /* PlayerHeaderView.h */,
+				9D2C937C28867FA000DE5F4C /* PlayerHeaderView.m */,
 				9D2C935328853A2A00DE5F4C /* PlayerTableViewCell.m */,
 				9D2C935428853A2A00DE5F4C /* PlayerTableViewCell.xib */,
 				9D2C935728853F2800DE5F4C /* Masonry */,
@@ -304,6 +309,7 @@
 				9D2C937128853F2800DE5F4C /* NSLayoutConstraint+MASDebugAdditions.m in Sources */,
 				9D2C937528853F2900DE5F4C /* MASLayoutConstraint.m in Sources */,
 				9DA0A496288146E600F67E53 /* main.m in Sources */,
+				9D2C937D28867FA000DE5F4C /* PlayerHeaderView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

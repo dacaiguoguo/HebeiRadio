@@ -23,13 +23,6 @@
     self.navigationController = [[UINavigationController alloc] initWithRootViewController:self.safariController];
     self.window.rootViewController = self.navigationController;
     [self.window makeKeyAndVisible];
-
-//    if (!_safari) {
-//        NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];
-//        if (destUrl) {
-//            _safari = [[SFSafariViewController alloc] initWithURL:destUrl];
-//        }
-//    }
     return YES;
 }
 
@@ -40,11 +33,7 @@
     NSURLComponents *com = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
     com.scheme = @"http";
     NSURL *destUrl = com.URL;
-    [self.safari dismissViewControllerAnimated:YES completion:^{
-
-    }];
-//    self.safari = [[SFSafariViewController alloc] initWithURL:destUrl];
-    [NSUserDefaults.standardUserDefaults setURL:destUrl forKey:@"destUrl"];
+    //    self.safari = [[SFSafariViewController alloc] initWithURL:destUrl];
     NSMutableArray *array = [NSUserDefaults.standardUserDefaults arrayForKey:@"playList"].mutableCopy;
     if (!array) {
         array = [NSMutableArray array];
@@ -58,26 +47,27 @@
     }
 
     if (!hasAdd) {
+        [NSUserDefaults.standardUserDefaults setURL:destUrl forKey:@"destUrl"];
         [array addObject:[destUrl dataRepresentation]];
+        [NSUserDefaults.standardUserDefaults setObject:array forKey:@"playList"];
+        [self.safariController loadAction:@"playList"];
     }
-    [NSUserDefaults.standardUserDefaults setObject:array forKey:@"playList"];
-    [self.safariController loadAction:@"playList"];
-//    self.safari.delegate = self;
-//    [self.navigationController presentViewController:self.safari animated:YES completion:^{
-//
-//    }];
+    //    self.safari.delegate = self;
+    //    [self.navigationController presentViewController:self.safari animated:YES completion:^{
+    //
+    //    }];
     return YES;
 }
 
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller {
-//    self.safari = nil;
+    //    self.safari = nil;
 }
 
 - (void)statusAction:(UIButton *)sender {
 
-//    [self.navigationController presentViewController:_safari animated:YES completion:^{
-//
-//    }];
+    //    [self.navigationController presentViewController:_safari animated:YES completion:^{
+    //
+    //    }];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

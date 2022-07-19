@@ -6,9 +6,7 @@
 //
 
 #import <UIKit/UIKit.h>
-@interface PlayerHeaderView: UIView
 
-@end
 @interface ViewController : UIViewController
 @property (nonatomic, strong) UIButton *statusButton;
 - (void)loadAction:(NSString *)sender;
