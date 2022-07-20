@@ -243,6 +243,13 @@
     }];
     [editRadiusAlert addAction:playAction];
 
+    UIAlertAction *playSafariAction = [UIAlertAction actionWithTitle:@"Safari播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+        [UIApplication.sharedApplication openURL:url options:@{} completionHandler:^(BOOL success) {
+
+        }];
+    }];
+    [editRadiusAlert addAction:playSafariAction];
+
     UIAlertAction *doneAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
         if (self.tempRow >= 0) {
             coms.fragment = [NSString stringWithFormat:@"t=%ld", (long)self.tempRow * 60];
