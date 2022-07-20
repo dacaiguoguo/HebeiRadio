@@ -6,9 +6,11 @@
 //
 
 #import <UIKit/UIKit.h>
+@class RadioItem;
 
 @interface ViewController : UIViewController
 @property (nonatomic, strong) UIButton *statusButton;
-- (void)loadAction:(NSString *)sender;
+- (void)loadAction:(NSURL *)sender;
+- (void)loadItem:(RadioItem *)sender;
 @end
 

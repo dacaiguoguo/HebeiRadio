@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface PlayerTableViewCell : UITableViewCell
 @property (strong, nonatomic) IBOutlet UILabel *nameLabel;
+- (IBAction)infoAction:(id)sender;
 @property (strong, nonatomic) IBOutlet UIPickerView *pickerView;
 
 @end

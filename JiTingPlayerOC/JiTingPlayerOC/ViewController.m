@@ -9,153 +9,54 @@
 // list 是否要根据播放记录 排序？还是存储记录排序？
 #import "ViewController.h"
 #import "PlayerTableViewCell.h"
-#import "Masonry.h"
-#import <CommonCrypto/CommonDigest.h>
 #import "PlayerHeaderView.h"
+#import "RadioItem.h"
+#import "CategoryTool.h"
+@import Masonry;
+@import ReactiveObjC;
 @import WebKit;
 @import AFNetworking;
+@import PINCache;
+@import AVFoundation;
 
-
-@implementation NSFileManager (NRFileManager)
-
-// This method calculates the accumulated size of a directory on the volume in bytes.
-//
-// As there's no simple way to get this information from the file system it has to crawl the entire hierarchy,
-// accumulating the overall sum on the way. The resulting value is roughly equivalent with the amount of bytes
-// that would become available on the volume if the directory would be deleted.
-//
-// Caveat: There are a couple of oddities that are not taken into account (like symbolic links, meta data of
-// directories, hard links, ...).
-
-- (BOOL)nr_getAllocatedSize:(unsigned long long *)size ofDirectoryAtURL:(NSURL *)directoryURL error:(NSError * __autoreleasing *)error
-{
-    NSParameterAssert(size != NULL);
-    NSParameterAssert(directoryURL != nil);
-
-    // We'll sum up content size here:
-    unsigned long long accumulatedSize = 0;
-
-    // prefetching some properties during traversal will speed up things a bit.
-    NSArray *prefetchedProperties = @[
-        NSURLIsRegularFileKey,
-        NSURLFileAllocatedSizeKey,
-        NSURLTotalFileAllocatedSizeKey,
-    ];
-
-    // The error handler simply signals errors to outside code.
-    __block BOOL errorDidOccur = NO;
-    BOOL (^errorHandler)(NSURL *, NSError *) = ^(NSURL *url, NSError *localError) {
-        if (error != NULL)
-            *error = localError;
-        errorDidOccur = YES;
-        return NO;
-    };
-
-    // We have to enumerate all directory contents, including subdirectories.
-    NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager] enumeratorAtURL:directoryURL
-                                                             includingPropertiesForKeys:prefetchedProperties
-                                                                                options:(NSDirectoryEnumerationOptions)0
-                                                                           errorHandler:errorHandler];
-
-    // Start the traversal:
-    for (NSURL *contentItemURL in enumerator) {
-
-        // Bail out on errors from the errorHandler.
-        if (errorDidOccur)
-            return NO;
-
-        // Get the type of this item, making sure we only sum up sizes of regular files.
-        NSNumber *isRegularFile;
-        if (! [contentItemURL getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:error])
-            return NO;
-        if (! [isRegularFile boolValue])
-            continue; // Ignore anything except regular files.
-
-        // To get the file's size we first try the most comprehensive value in terms of what the file may use on disk.
-        // This includes metadata, compression (on file system level) and block size.
-        NSNumber *fileSize;
-        if (! [contentItemURL getResourceValue:&fileSize forKey:NSURLTotalFileAllocatedSizeKey error:error])
-            return NO;
-
-        // In case the value is unavailable we use the fallback value (excluding meta data and compression)
-        // This value should always be available.
-        if (fileSize == nil) {
-            if (! [contentItemURL getResourceValue:&fileSize forKey:NSURLFileAllocatedSizeKey error:error])
-                return NO;
-
-            NSAssert(fileSize != nil, @"huh? NSURLFileAllocatedSizeKey should always return a value");
-        }
-
-        // We're good, add up the value.
-        accumulatedSize += [fileSize unsignedLongLongValue];
-    }
-
-    // Bail out on errors from the errorHandler.
-    if (errorDidOccur)
-        return NO;
-
-    // We finally got it.
-    *size = accumulatedSize;
-    return YES;
-}
-
-@end
-
-@implementation NSString (fsh)
-
-- (NSString *)SHA256 {
-    const char* str = [self UTF8String];
-    unsigned char result[CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256(str, (CC_LONG)strlen(str), result);
-
-    NSMutableString *ret = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
-    for(int i = 0; i<CC_SHA256_DIGEST_LENGTH; i++)
-    {
-        [ret appendFormat:@"%02x",result[i]];
-    }
-    ret = (NSMutableString *)[ret uppercaseString];
-    return ret;
-}
-
-
-@end
-
-@implementation NSURL(fsh)
-
-- (NSString *)title {
-    NSURLComponents *coms = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:NO];
-    for (NSURLQueryItem *item in coms.queryItems) {
-        if ([item.name isEqualToString:@"title"]) {
-            return item.value;
-        }
-    }
-    return nil;
-}
-
-@end
-
-
-@interface ViewController ()<UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource>
+@interface ViewController ()<UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, PlayerHeaderViewDelegate>
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) PlayerHeaderView *statusView;
 @property (nonatomic, strong) NSArray *playList;
 @property (nonatomic, assign) NSInteger tempRow;
+@property (nonatomic, assign) NSInteger rowCount;
 @property (nonatomic, strong) AFURLSessionManager *manager;
 @property (nonatomic, strong) UIProgressView *proView;
 @end
 
 @implementation ViewController
 
+- (void)view:(PlayerHeaderView *)view didReceiveScriptMessage:(NSString *)message {
+    RadioItem *find = [self.playList.rac_sequence filter:^BOOL(RadioItem *value) {
+        return [value.path isEqualToString:view.item.path];
+    }].array.firstObject;
+    if (!find.duration) {
+        AVURLAsset *dsds = [[AVURLAsset alloc] initWithURL:find.documentURL options:@{}];
+        find.duration = @(CMTimeGetSeconds(dsds.duration));
+    }
+    find.currentTime = [NSString stringWithFormat:@"%ld", message.integerValue];
+    [[PINCache sharedCache] setObject:self.playList forKey:@"playHistory"];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"播放列表";
+
     self.tempRow = -1;
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     self.manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
     self.view.backgroundColor = UIColor.whiteColor;
-    self.playList = [NSUserDefaults.standardUserDefaults arrayForKey:@"playList"];
+    self.playList = [[PINCache sharedCache] objectForKey:@"playHistory"];
     [self.view addSubview:self.tableView];
+    [[RACObserve(self, playList) distinctUntilChanged] subscribeNext:^(id  _Nullable x) {
+        [self.tableView reloadData];
+    }];
+
     [self.tableView registerNib:[UINib nibWithNibName:@"PlayerTableViewCell" bundle:nil] forCellReuseIdentifier:@"PlayerTableViewCell"];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom).offset(-60);
@@ -163,6 +64,7 @@
     }];
     self.statusView = [[PlayerHeaderView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 60)];
     [self.view addSubview:self.statusView];
+    self.statusView.delegate = self;
     [self.statusView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom);
         make.leading.trailing.equalTo(self.view);
@@ -230,9 +132,8 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    for (NSData *data in self.playList) {
-        NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
-        NSLog(@"%@", url);
+    for (RadioItem *data in self.playList) {
+        NSLog(@"%@", data);
     }
     if (self.playList.count == 0) {
         UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:@"去添加" message:nil preferredStyle:UIAlertControllerStyleAlert];
@@ -251,8 +152,117 @@
     }
 }
 
-- (void)loadAction:(NSString *)sender {
-    NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];
+- (RadioItem *)lastItem {
+    if (self.playList.count == 0) {
+        return nil;
+    }
+    NSMutableArray<RadioItem *> *allPlayedItems = [NSMutableArray array];
+    for (RadioItem *item in self.playList) {
+        if (item.playTime) {
+            [allPlayedItems addObject:item];
+        }
+    }
+    NSArray<RadioItem *> *allPlayedItemsSorted = [allPlayedItems sortedArrayUsingComparator:^NSComparisonResult(RadioItem *obj1, RadioItem *obj2) {
+        return [obj1.playTime compare:obj2.playTime];
+    }];
+    return allPlayedItemsSorted.firstObject;
+}
+
+- (void)loadAction:(NSURL *)destUrl {
+    if (!destUrl) {
+        return;
+    }
+    NSArray<RadioItem *> *array = [[PINCache sharedCache] objectForKey:@"playHistory"];
+    BOOL hasAdd = NO;
+    for (RadioItem *data in array) {
+        if ([data.path isEqualToString:destUrl.path]) {
+            NSURL *docUrl = data.documentURL;
+            hasAdd = YES;
+            if ([NSFileManager.defaultManager fileExistsAtPath:docUrl.path]) {
+                NSDictionary<NSFileAttributeKey, id> *att =  [NSFileManager.defaultManager attributesOfItemAtPath:docUrl.path error:nil];
+                NSNumber *sizeNumber = att[NSFileSize];
+                if (sizeNumber.longValue == 0) {
+                    NSLog(@"File empty not play");
+                    // 应该alert移除
+                    UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:@"文件为空" message:nil preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
+                        [[PINCache sharedCache] removeObjectForKey:@"destUrl"];
+                    }];
+                    [editRadiusAlert addAction:cancelAction];
+                    [self presentViewController:editRadiusAlert animated:YES completion:^{
+
+                    }];
+                    return;
+                }
+                [self.statusView playItem:data];
+            } else {
+                [self downloadUrl:destUrl];
+            }
+        }
+    }
+
+    if (!hasAdd) {
+        [self downloadUrl:destUrl];
+    }
+}
+
+- (void)downloadUrl:(NSURL *)destUrl {
+    // 下载
+    NSURLRequest *request = [NSURLRequest requestWithURL:destUrl];
+    NSURLSessionDownloadTask *downloadTask = [self.manager downloadTaskWithRequest:request
+                                                                          progress:^(NSProgress * _Nonnull downloadProgress) {
+    } destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
+        NSURL *documentsDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
+        NSURL *saveUrl = [documentsDirectoryURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.mp4", destUrl.path.SHA256]];
+        return saveUrl;
+    } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
+        if (error) {
+            return;
+        }
+        NSDictionary<NSFileAttributeKey, id> *att =  [NSFileManager.defaultManager attributesOfItemAtPath:filePath.path error:nil];
+        NSNumber *sizeNumber = att[NSFileSize];
+        if (sizeNumber.longValue == 0) {
+            NSLog(@"File empty downloaded");
+            // 应该alert移除
+            UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:@"文件为空" message:nil preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
+                [[PINCache sharedCache] removeObjectForKey:@"destUrl"];
+            }];
+            [editRadiusAlert addAction:cancelAction];
+            [self presentViewController:editRadiusAlert animated:YES completion:^{
+
+            }];
+            return;
+        }
+        NSLog(@"File downloaded to: %@", filePath);
+        RadioItem *item = [[RadioItem alloc] init];
+        item.url = destUrl;
+        AVURLAsset *dsds = [[AVURLAsset alloc] initWithURL:item.documentURL options:@{}];
+        item.duration = @(CMTimeGetSeconds(dsds.duration));
+        item.name = destUrl.title;
+        item.size = sizeNumber;
+        item.addTime = NSDate.date;
+        item.playTime = item.addTime;
+        item.currentTime = @"0";
+        NSMutableArray *mut = self.playList.mutableCopy;
+        if (!mut) {
+            mut = [NSMutableArray array];
+        }
+        [mut addObject:item];
+        [[PINCache sharedCache] setObject:mut forKey:@"playHistory"];
+        self.playList = mut;
+        [self.statusView playItem:item];
+    }];
+    [self.proView setProgressWithDownloadProgressOfTask:downloadTask animated:YES];
+    [downloadTask resume];
+
+}
+
+- (void)loadItem:(RadioItem *)sender {
+    if (self.playList.count == 0) {
+        return;
+    }
+    NSURL *destUrl = sender.url;
     if (!destUrl) {
         return;
     }
@@ -266,10 +276,7 @@
             // 应该alert移除这一条记录
             return;
         }
-        NSURLComponents *coms = [NSURLComponents componentsWithURL:destUrl resolvingAgainstBaseURL:NO];
-        NSURLComponents *retcoms = [NSURLComponents componentsWithURL:ret resolvingAgainstBaseURL:NO];
-        retcoms.fragment = coms.fragment;
-        [self.statusView updateWebviewUrl:retcoms.URL];
+        [self.statusView playItem:sender];
     } else {
         NSURLRequest *request = [NSURLRequest requestWithURL:destUrl];
         NSURLSessionDownloadTask *downloadTask = [self.manager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
@@ -288,15 +295,15 @@
                 return;
             }
             NSLog(@"File downloaded to: %@", filePath);
-            [self.statusView updateWebviewUrl:filePath];
+            [self.statusView playItem:filePath];
         }];
         [self.proView setProgressWithDownloadProgressOfTask:downloadTask animated:YES];
         [downloadTask resume];
     }
-    if (sender.length > 0) {
-        self.playList = [NSUserDefaults.standardUserDefaults arrayForKey:@"playList"];
-        [self.tableView reloadData];
-    }
+//    if (sender.length > 0) {
+//        self.playList = [[PINCache sharedCache] arrayForKey:@"playHistory"];
+//        [self.tableView reloadData];
+//    }
 }
 
 - (void)statusAction:(UIButton *)sender {
@@ -307,7 +314,7 @@
 }
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
-    return 100;
+    return self.rowCount;
 }
 
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
@@ -340,21 +347,18 @@
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     PlayerTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PlayerTableViewCell" forIndexPath:indexPath];
-    NSData *data = [self.playList objectAtIndex:indexPath.row];
-    NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
-    if (url.title) {
-        cell.nameLabel.text = [url.title stringByAppendingFormat:@"#%@", url.fragment?:@""];;
-    } else if (url.fragment) {
-        cell.nameLabel.text = [url.path stringByAppendingFormat:@"#%@", url.fragment];
-    } else {
-        cell.nameLabel.text = url.path;
-    }
+    RadioItem *data = [self.playList objectAtIndex:indexPath.row];
+    cell.nameLabel.text = [NSString stringWithFormat:@"%@#%@", data.name, [data times]];;
     cell.nameLabel.numberOfLines = 0;
-    cell.contentView.backgroundColor = UIColor.whiteColor;
-    NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];
-    if ([destUrl.path isEqualToString:url.path]) {
+    if ([data.path isEqualToString:self.statusView.item.path]) {
         cell.contentView.backgroundColor = [UIColor colorWithRed:0xbb/255.0 green:0xff/255.0 blue:0xaa/255.0 alpha:1];
+    } else {
+        cell.contentView.backgroundColor = UIColor.whiteColor;
     }
+    [[[cell rac_signalForSelector:@selector(infoAction:)] skip:0] subscribeNext:^(RACTuple * _Nullable x) {
+        [self.statusView playItem:data];
+        [self.tableView reloadData];
+    }];
     cell.pickerView.delegate = self;
     cell.pickerView.dataSource = self;
     return cell;
@@ -362,29 +366,22 @@
 
 #pragma mark - tableView--UITableViewDelegate
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSData *data = [self.playList objectAtIndex:indexPath.row];
-    NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
+    RadioItem *data = [self.playList objectAtIndex:indexPath.row];
+    NSURL *url = data.url;
+    self.rowCount = data.duration.intValue / 60;
     UIViewController *vc = [[UIViewController alloc] init];
     vc.preferredContentSize = CGSizeMake(self.view.bounds.size.width, 200);
     UIPickerView *pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 200)];
     pickerView.delegate = self;
     pickerView.dataSource = self;
     [vc.view addSubview:pickerView];
-    NSURLComponents *coms = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-    NSString *title = @"操作";
-    NSString *tTime = @"";
-    for (NSURLQueryItem *item in coms.queryItems) {
-        if ([item.name isEqualToString:@"title"]) {
-            title = item.value;
-        }
-    }
 
-    UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:title message:tTime preferredStyle:UIAlertControllerStyleActionSheet];
+    NSString *title = data.name;
+    UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:title message:data.currentTime preferredStyle:UIAlertControllerStyleActionSheet];
     [editRadiusAlert setValue:vc forKey:@"contentViewController"];
     UIAlertAction *playAction = [UIAlertAction actionWithTitle:@"直接播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-        [NSUserDefaults.standardUserDefaults setURL:url forKey:@"destUrl"];
-        [self.statusView updateWebview];
-        [self loadAction:@"playListPlay"];
+        [self.statusView playItem:data];
+        [self.tableView reloadData];
     }];
     [editRadiusAlert addAction:playAction];
 
@@ -397,14 +394,12 @@
 
     UIAlertAction *doneAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
         if (self.tempRow >= 0) {
-            coms.fragment = [NSString stringWithFormat:@"t=%ld", (long)self.tempRow * 60];
-            NSURL *modifyUrl = coms.URL;
+            data.currentTime = [NSString stringWithFormat:@"%ld", (long)self.tempRow * 60];
             NSMutableArray *mut = self.playList.mutableCopy;
-            mut[indexPath.row] = [modifyUrl dataRepresentation];
-            [NSUserDefaults.standardUserDefaults setURL:modifyUrl forKey:@"destUrl"];
-            [NSUserDefaults.standardUserDefaults setObject:mut forKey:@"playList"];
+            mut[indexPath.row] = data;
+            [[PINCache sharedCache] setObject:mut forKey:@"playHistory"];
             [self.statusView updateWebview];
-            [self loadAction:@"playListModify"];
+            [self.statusView playItem:data];
             self.tempRow = -1;
         }
     }];

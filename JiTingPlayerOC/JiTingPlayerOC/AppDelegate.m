@@ -7,6 +7,8 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
+#import "RadioItem.h"
+@import PINCache;
 @import SafariServices;
 @interface AppDelegate () <SFSafariViewControllerDelegate>
 @property (nonatomic, strong) SFSafariViewController *safari;
@@ -33,29 +35,31 @@
     NSURLComponents *com = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
     com.scheme = @"http";
     NSURL *destUrl = com.URL;
-    //    self.safari = [[SFSafariViewController alloc] initWithURL:destUrl];
-    NSMutableArray *array = [NSUserDefaults.standardUserDefaults arrayForKey:@"playList"].mutableCopy;
-    if (!array) {
-        array = [NSMutableArray array];
-    }
-    BOOL hasAdd = NO;
-    for (NSData *data in array) {
-        NSURL *url = [NSURL URLWithDataRepresentation:data relativeToURL:nil];
-        if ([url.path isEqualToString:destUrl.path]) {
-            hasAdd = YES;
-        }
-    }
-
-    if (!hasAdd) {
-        [NSUserDefaults.standardUserDefaults setURL:destUrl forKey:@"destUrl"];
-        [array addObject:[destUrl dataRepresentation]];
-        [NSUserDefaults.standardUserDefaults setObject:array forKey:@"playList"];
-        [self.safariController loadAction:@"playList"];
-    }
-    //    self.safari.delegate = self;
-    //    [self.navigationController presentViewController:self.safari animated:YES completion:^{
-    //
-    //    }];
+    [[PINCache sharedCache] setObject:destUrl forKey:@"destUrl"];
+    [self.safariController loadAction:destUrl];
+//
+//    //    self.safari = [[SFSafariViewController alloc] initWithURL:destUrl];
+//    NSMutableArray<RadioItem *> *array = [[PINCache sharedCache] arrayForKey:@"playHistory"].mutableCopy;
+//    if (!array) {
+//        array = [NSMutableArray array];
+//    }
+//    BOOL hasAdd = NO;
+//    for (RadioItem *data in array) {
+//        NSURL *url = data.url;
+//        if ([url.path isEqualToString:destUrl.path]) {
+//            hasAdd = YES;
+//        }
+//    }
+//
+//    if (!hasAdd) {
+//        [[PINCache sharedCache] setURL:destUrl forKey:@"destUrl"];
+//    } else {
+//        // todo 弹出alert 提示是否要播放？还是重新下载？
+//    }
+//    //    self.safari.delegate = self;
+//    //    [self.navigationController presentViewController:self.safari animated:YES completion:^{
+//    //
+//    //    }];
     return YES;
 }
 

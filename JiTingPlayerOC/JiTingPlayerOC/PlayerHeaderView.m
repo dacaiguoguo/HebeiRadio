@@ -6,21 +6,21 @@
 //
 
 #import "PlayerHeaderView.h"
+#import "RadioItem.h"
 @import WebKit;
-#import "Masonry/Masonry.h"
+@import Masonry;
+@import PINCache;
+@import ReactiveObjC;
 
 @interface PlayerHeaderView ()<WKScriptMessageHandler>
-@property (nonatomic, strong) WKWebView *contentWebView;
 @property (nonatomic, strong) NSTimer *timer;
-@property (nonatomic, strong) NSURL *pUrl;
-
+@property (nonatomic, strong) WKWebView *contentWebView;
 @end
 
 @implementation PlayerHeaderView
 
-- (void)updateWebviewUrl:(NSURL *)url {
-    self.pUrl = url;
-    [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.pUrl]];
+- (void)playItem:(RadioItem *)item {
+    self.item = item;
 }
 
 - (void)updateWebview {
@@ -56,11 +56,7 @@
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     NSLog(@"didReceiveScriptMessage:%@", message.body);
     NSString *bodys = message.body;
-    NSURL *destUrl = [NSUserDefaults.standardUserDefaults URLForKey:@"destUrl"];
-    NSURLComponents *coms = [NSURLComponents componentsWithURL:destUrl resolvingAgainstBaseURL:NO];
-    coms.fragment = [NSString stringWithFormat:@"t=%d", bodys.intValue];
-    NSURL *modifyUrl = coms.URL;
-    [NSUserDefaults.standardUserDefaults setURL:modifyUrl forKey:@"destUrl"];
+    [self.delegate view:self didReceiveScriptMessage:bodys];
 }
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -68,6 +64,9 @@
     if (self) {
         [self updateWebview];
         self.backgroundColor = UIColor.darkGrayColor;
+        [[RACObserve(self, item) distinctUntilChanged] subscribeNext:^(id  _Nullable x) {
+            [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.urlAtTime]];
+        }];
     }
     return self;
 }

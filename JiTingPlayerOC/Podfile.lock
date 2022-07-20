@@ -14,17 +14,38 @@ PODS:
   - AFNetworking/Serialization (4.0.1)
   - AFNetworking/UIKit (4.0.1):
     - AFNetworking/NSURLSession
+  - Masonry (1.1.0)
+  - PINCache (3.0.3):
+    - PINCache/Arc-exception-safe (= 3.0.3)
+    - PINCache/Core (= 3.0.3)
+  - PINCache/Arc-exception-safe (3.0.3):
+    - PINCache/Core
+  - PINCache/Core (3.0.3):
+    - PINOperation (~> 1.2.1)
+  - PINOperation (1.2.1)
+  - ReactiveObjC (3.1.1)
 
 DEPENDENCIES:
   - AFNetworking (~> 4.0.1)
+  - Masonry (= 1.1.0)
+  - PINCache (~> 3.0.3)
+  - ReactiveObjC (= 3.1.1)
 
 SPEC REPOS:
   trunk:
     - AFNetworking
+    - Masonry
+    - PINCache
+    - PINOperation
+    - ReactiveObjC
 
 SPEC CHECKSUMS:
   AFNetworking: 7864c38297c79aaca1500c33288e429c3451fdce
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  PINCache: 7a8fc1a691173d21dbddbf86cd515de6efa55086
+  PINOperation: 00c935935f1e8cf0d1e2d6b542e75b88fc3e5e20
+  ReactiveObjC: 011caa393aa0383245f2dcf9bf02e86b80b36040
 
-PODFILE CHECKSUM: d073b7dadbc50575ee7b79c81cf27da062d23453
+PODFILE CHECKSUM: defe2734962daf69d421d0534b11ced294405e5e
 
 COCOAPODS: 1.11.2
