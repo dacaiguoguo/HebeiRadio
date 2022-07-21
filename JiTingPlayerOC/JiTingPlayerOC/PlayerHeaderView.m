@@ -24,6 +24,7 @@
         [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.urlAtTime]];
     } else {
         self.item = item;
+        [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.urlAtTime]];
     }
 }
 - (void)stopTimer {
@@ -72,9 +73,6 @@
     if (self) {
         [self updateWebview];
         self.backgroundColor = UIColor.darkGrayColor;
-        [[RACObserve(self, item) distinctUntilChanged] subscribeNext:^(id  _Nullable x) {
-            [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.urlAtTime]];
-        }];
     }
     return self;
 }

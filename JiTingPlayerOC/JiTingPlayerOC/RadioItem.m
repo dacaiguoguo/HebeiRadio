@@ -25,7 +25,7 @@
     self.duration = [decoder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(duration))];
     self.currentTime = [decoder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(currentTime))];
     self.size = [decoder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(size))];
-    self.empty = [decoder decodeBoolForKey:NSStringFromSelector(@selector(empty))];
+    self.done = [decoder decodeBoolForKey:NSStringFromSelector(@selector(done))];
     return self;
 }
 
@@ -50,7 +50,7 @@
     [coder encodeObject:self.duration forKey:NSStringFromSelector(@selector(duration))];
     [coder encodeObject:self.currentTime forKey:NSStringFromSelector(@selector(currentTime))];
     [coder encodeObject:self.size forKey:NSStringFromSelector(@selector(size))];
-    [coder encodeBool:self.empty forKey:NSStringFromSelector(@selector(empty))];
+    [coder encodeBool:self.done forKey:NSStringFromSelector(@selector(done))];
 }
 
 #pragma mark - NSCopying
@@ -66,7 +66,7 @@
     serializer.duration = self.duration;
     serializer.currentTime = self.currentTime;
     serializer.size = self.size;
-    serializer.empty = self.empty;
+    serializer.done = self.done;
     return serializer;
 }
 

@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSURL *urlAtTime;
 @property (nonatomic, readonly) NSURL *documentURL;
 @property (nonatomic, copy) NSNumber *size;
-@property (nonatomic, assign) BOOL empty;
+@property (nonatomic, assign) BOOL done;
 - (NSString *)showTimes;
 @end
 

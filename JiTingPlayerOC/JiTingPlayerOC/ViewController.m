@@ -40,10 +40,12 @@
         find.duration = @(CMTimeGetSeconds(dsds.duration));
     }
     find.currentTime = [NSString stringWithFormat:@"%ld", message.integerValue];
-    [[PINCache sharedCache] setObject:self.playList forKey:@"playHistory"];
-    if (labs(message.integerValue - find.duration.integerValue) < 2) {
+    if (labs(message.integerValue - find.duration.integerValue) < 1) {
         [view stopTimer];
+        find.done = YES;
     }
+    [[PINCache sharedCache] setObject:self.playList forKey:@"playHistory"];
+    [self.tableView reloadData];
 }
 
 - (void)viewDidLoad {
@@ -301,8 +303,12 @@
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     PlayerTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PlayerTableViewCell" forIndexPath:indexPath];
     RadioItem *data = [self.playList objectAtIndex:indexPath.row];
-    cell.nameLabel.text = [NSString stringWithFormat:@"%@#%@", data.name, [data showTimes]];;
     cell.nameLabel.numberOfLines = 0;
+    if (data.done) {
+        cell.nameLabel.text = [NSString stringWithFormat:@"*%@#%@", data.name, [data showTimes]];;
+    } else {
+        cell.nameLabel.text = [NSString stringWithFormat:@"%@#%@", data.name, [data showTimes]];;
+    }
     if ([data.path isEqualToString:self.statusView.item.path]) {
         cell.contentView.backgroundColor = [UIColor colorWithRed:0xbb/255.0 green:0xff/255.0 blue:0xaa/255.0 alpha:1];
     } else {
@@ -357,6 +363,8 @@
             [[PINCache sharedCache] setObject:mut forKey:@"playHistory"];
             [self.statusView updateWebview];
             [self.statusView playItem:data];
+            self.playList = mut;
+            [self.tableView reloadData];
             self.tempRow = -1;
         }
     }];
