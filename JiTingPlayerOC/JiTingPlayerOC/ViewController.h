@@ -11,6 +11,5 @@
 @interface ViewController : UIViewController
 @property (nonatomic, strong) UIButton *statusButton;
 - (void)loadAction:(NSURL *)sender;
-- (void)loadItem:(RadioItem *)sender;
 @end
 

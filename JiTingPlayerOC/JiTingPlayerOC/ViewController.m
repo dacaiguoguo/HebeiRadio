@@ -19,7 +19,7 @@
 @import PINCache;
 @import AVFoundation;
 
-@interface ViewController ()<UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, PlayerHeaderViewDelegate>
+@interface ViewController ()<UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, PlayerHeaderViewDelegate, PlayerTableViewCellDelegate>
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) PlayerHeaderView *statusView;
 @property (nonatomic, strong) NSArray *playList;
@@ -41,6 +41,9 @@
     }
     find.currentTime = [NSString stringWithFormat:@"%ld", message.integerValue];
     [[PINCache sharedCache] setObject:self.playList forKey:@"playHistory"];
+    if (labs(message.integerValue - find.duration.integerValue) < 2) {
+        [view stopTimer];
+    }
 }
 
 - (void)viewDidLoad {
@@ -78,26 +81,23 @@
         make.leading.trailing.equalTo(self.view);
         make.height.equalTo(@(6));
     }];
-    //    self.statusButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    //    self.statusButton.backgroundColor = UIColor.greenColor;
-    //    self.statusButton.layer.cornerRadius = 8;
-    //    self.statusButton.layer.masksToBounds = YES;
-    //    [self.view addSubview:self.statusButton];
-    //    self.statusButton.frame = CGRectMake(0, 0, 100, 100);
-    //    self.statusButton.center = self.view.center;
-    //    [self.statusButton addTarget:UIApplication.sharedApplication.delegate action:@selector(statusAction:) forControlEvents:UIControlEventTouchUpInside];
-    [self loadAction:nil];
+    NSURL *lastUrl = [[PINCache sharedCache] objectForKey:@"destUrl"];
+    [self loadAction:lastUrl];
+    [self addClearButton];
+}
+
+- (void)addClearButton {
     UIAction *action = [UIAction actionWithHandler:^(__kindof UIAction * _Nonnull action) {
-        UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:@"清理缓存"
+        UIAlertController *removeAlert = [UIAlertController alertControllerWithTitle:@"清理缓存"
                                                                                  message:nil
                                                                           preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *playSafariAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"清理Document %@", [self calculateCache:NSDocumentDirectory]] style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+        UIAlertAction *removeDocumentAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"清理Document %@", [self calculateCache:NSDocumentDirectory]] style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
             NSFileManager *fileManager = [NSFileManager defaultManager];
             NSError *err = nil;
             NSURL *docUrl = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&err];
             [fileManager removeItemAtURL:docUrl error:&err];
         }];
-        [editRadiusAlert addAction:playSafariAction];
+        [removeAlert addAction:removeDocumentAction];
 
         UIAlertAction *cacheAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"清理Cache %@", [self calculateCache:NSCachesDirectory]] style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
             NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -105,18 +105,24 @@
             NSURL *docUrl = [fileManager URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&err];
             [fileManager removeItemAtURL:docUrl error:&err];
         }];
-        [editRadiusAlert addAction:cacheAction];
+        [removeAlert addAction:cacheAction];
+
+        NSString *folderSizeStr = [NSByteCountFormatter stringFromByteCount:[PINCache.sharedCache diskCache].byteCount countStyle:NSByteCountFormatterCountStyleFile];
+
+        UIAlertAction *cacheRecordAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"清理记录 %@", folderSizeStr] style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+            [PINCache.sharedCache removeAllObjects];
+        }];
+        [removeAlert addAction:cacheRecordAction];
 
         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
         }];
-        [editRadiusAlert addAction:cancelAction];
-        [self presentViewController:editRadiusAlert animated:YES completion:^{
+        [removeAlert addAction:cancelAction];
+        [self presentViewController:removeAlert animated:YES completion:^{
 
         }];
     }];
     UIBarButtonItem *leftbarButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash primaryAction:action];
     self.navigationItem.leftBarButtonItem = leftbarButton;
-    
 }
 
 - (NSString *)calculateCache:(NSSearchPathDirectory)enukey {
@@ -207,7 +213,6 @@
 }
 
 - (void)downloadUrl:(NSURL *)destUrl {
-    // 下载
     NSURLRequest *request = [NSURLRequest requestWithURL:destUrl];
     NSURLSessionDownloadTask *downloadTask = [self.manager downloadTaskWithRequest:request
                                                                           progress:^(NSProgress * _Nonnull downloadProgress) {
@@ -216,7 +221,11 @@
         NSURL *saveUrl = [documentsDirectoryURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.mp4", destUrl.path.SHA256]];
         return saveUrl;
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
+        [[PINCache sharedCache] removeObjectForKey:@"destUrl"];
         if (error) {
+            UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:@"请求报错" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+            [errorAlert addAction:[UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {}]];
+            [self presentViewController:errorAlert animated:YES completion:^{}];
             return;
         }
         NSDictionary<NSFileAttributeKey, id> *att =  [NSFileManager.defaultManager attributesOfItemAtPath:filePath.path error:nil];
@@ -224,14 +233,9 @@
         if (sizeNumber.longValue == 0) {
             NSLog(@"File empty downloaded");
             // 应该alert移除
-            UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:@"文件为空" message:nil preferredStyle:UIAlertControllerStyleAlert];
-            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
-                [[PINCache sharedCache] removeObjectForKey:@"destUrl"];
-            }];
-            [editRadiusAlert addAction:cancelAction];
-            [self presentViewController:editRadiusAlert animated:YES completion:^{
-
-            }];
+            UIAlertController *emptyAlert = [UIAlertController alertControllerWithTitle:@"文件为空" message:nil preferredStyle:UIAlertControllerStyleAlert];
+            [emptyAlert addAction:[UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {}]];
+            [self presentViewController:emptyAlert animated:YES completion:^{}];
             return;
         }
         NSLog(@"File downloaded to: %@", filePath);
@@ -253,60 +257,9 @@
         self.playList = mut;
         [self.statusView playItem:item];
     }];
+    [self.proView setProgress:0];
     [self.proView setProgressWithDownloadProgressOfTask:downloadTask animated:YES];
     [downloadTask resume];
-
-}
-
-- (void)loadItem:(RadioItem *)sender {
-    if (self.playList.count == 0) {
-        return;
-    }
-    NSURL *destUrl = sender.url;
-    if (!destUrl) {
-        return;
-    }
-    NSURL *documentsDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
-    NSURL *ret = [documentsDirectoryURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.mp4", [destUrl.path SHA256]]];
-    if ([NSFileManager.defaultManager fileExistsAtPath:ret.path]) {
-        NSDictionary<NSFileAttributeKey, id> *att =  [NSFileManager.defaultManager attributesOfItemAtPath:ret.path error:nil];
-        NSNumber *sizeNumber = att[NSFileSize];
-        if (sizeNumber.longValue == 0) {
-            NSLog(@"File empty not play");
-            // 应该alert移除这一条记录
-            return;
-        }
-        [self.statusView playItem:sender];
-    } else {
-        NSURLRequest *request = [NSURLRequest requestWithURL:destUrl];
-        NSURLSessionDownloadTask *downloadTask = [self.manager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
-
-        } destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
-            return ret;
-        } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
-            if (error) {
-                return;
-            }
-            NSDictionary<NSFileAttributeKey, id> *att =  [NSFileManager.defaultManager attributesOfItemAtPath:filePath.path error:nil];
-            NSNumber *sizeNumber = att[NSFileSize];
-            if (sizeNumber.longValue == 0) {
-                NSLog(@"File empty downloaded");
-                // 应该alert移除这一条记录
-                return;
-            }
-            NSLog(@"File downloaded to: %@", filePath);
-            [self.statusView playItem:filePath];
-        }];
-        [self.proView setProgressWithDownloadProgressOfTask:downloadTask animated:YES];
-        [downloadTask resume];
-    }
-//    if (sender.length > 0) {
-//        self.playList = [[PINCache sharedCache] arrayForKey:@"playHistory"];
-//        [self.tableView reloadData];
-//    }
-}
-
-- (void)statusAction:(UIButton *)sender {
 }
 
 - (nullable NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
@@ -348,20 +301,24 @@
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     PlayerTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PlayerTableViewCell" forIndexPath:indexPath];
     RadioItem *data = [self.playList objectAtIndex:indexPath.row];
-    cell.nameLabel.text = [NSString stringWithFormat:@"%@#%@", data.name, [data times]];;
+    cell.nameLabel.text = [NSString stringWithFormat:@"%@#%@", data.name, [data showTimes]];;
     cell.nameLabel.numberOfLines = 0;
     if ([data.path isEqualToString:self.statusView.item.path]) {
         cell.contentView.backgroundColor = [UIColor colorWithRed:0xbb/255.0 green:0xff/255.0 blue:0xaa/255.0 alpha:1];
     } else {
         cell.contentView.backgroundColor = UIColor.whiteColor;
     }
-    [[[cell rac_signalForSelector:@selector(infoAction:)] skip:0] subscribeNext:^(RACTuple * _Nullable x) {
-        [self.statusView playItem:data];
-        [self.tableView reloadData];
-    }];
+    cell.delegate = self;
     cell.pickerView.delegate = self;
     cell.pickerView.dataSource = self;
     return cell;
+}
+
+- (void)cell:(PlayerTableViewCell *)cell infoAction:(id)sender {
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+    RadioItem *data = [self.playList objectAtIndex:indexPath.row];
+    [self.statusView playItem:data];
+    [self.tableView reloadData];
 }
 
 #pragma mark - tableView--UITableViewDelegate

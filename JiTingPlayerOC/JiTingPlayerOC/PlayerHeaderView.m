@@ -20,7 +20,15 @@
 @implementation PlayerHeaderView
 
 - (void)playItem:(RadioItem *)item {
-    self.item = item;
+    if (item == nil) {
+        [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.urlAtTime]];
+    } else {
+        self.item = item;
+    }
+}
+- (void)stopTimer {
+    [self.timer invalidate];
+    self.timer = nil;
 }
 
 - (void)updateWebview {

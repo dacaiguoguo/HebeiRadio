@@ -80,7 +80,7 @@
     return [NSString stringWithFormat:@"name:%@ url:%@ currentTime:%@", _name, _url, _currentTime];
 }
 
-- (NSString *)times {
+- (NSString *)showTimes {
     int interval = self.currentTime.intValue;
     NSDateComponentsFormatter *formatter = [[NSDateComponentsFormatter alloc] init];
     NSCalendar *calendar = NSCalendar.currentCalendar;

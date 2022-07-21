@@ -21,6 +21,6 @@
 }
 
 - (IBAction)infoAction:(id)sender {
-    
+    [self.delegate cell:self infoAction:sender];
 }
 @end

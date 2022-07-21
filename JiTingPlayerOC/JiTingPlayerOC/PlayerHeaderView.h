@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) RadioItem *item;
 @property (nonatomic, weak) NSObject<PlayerHeaderViewDelegate> *delegate;
 - (void)updateWebview;
+- (void)stopTimer;
 - (void)playItem:(RadioItem *)item;
 @end
 

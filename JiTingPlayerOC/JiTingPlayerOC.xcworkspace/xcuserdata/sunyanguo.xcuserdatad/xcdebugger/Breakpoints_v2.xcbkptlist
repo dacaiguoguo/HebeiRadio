@@ -14,8 +14,8 @@
             filePath = "JiTingPlayerOC/ViewController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "176"
-            endingLineNumber = "176"
+            startingLineNumber = "182"
+            endingLineNumber = "182"
             landmarkName = "-loadAction:"
             landmarkType = "7">
          </BreakpointContent>
@@ -23,32 +23,48 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "98424098-7720-4A43-A9E6-28E5511E81A8"
-            shouldBeEnabled = "Yes"
+            uuid = "A9B510CF-FC1E-4684-9BFB-1F7E33D49D20"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "JiTingPlayerOC/ViewController.m"
+            filePath = "JiTingPlayerOC/PlayerHeaderView.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "241"
-            endingLineNumber = "241"
-            landmarkName = "-downloadUrl:"
+            startingLineNumber = "23"
+            endingLineNumber = "23"
+            landmarkName = "-playItem:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "706FE952-9385-4238-9766-74D740343632"
+            uuid = "9AB0200C-5BEB-4C4C-B94C-20D18FD83FB4"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "JiTingPlayerOC/PlayerHeaderView.m"
+            filePath = "JiTingPlayerOC/ViewController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "27"
-            endingLineNumber = "27"
-            landmarkName = "-updateWebview"
+            startingLineNumber = "113"
+            endingLineNumber = "113"
+            landmarkName = "-addClearButton"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0EEEA3D4-648C-46C8-ADB1-D806E97C5A8F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "JiTingPlayerOC/ViewController.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "45"
+            endingLineNumber = "45"
+            landmarkName = "-view:didReceiveScriptMessage:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
