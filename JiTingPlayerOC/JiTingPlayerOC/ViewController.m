@@ -4,9 +4,10 @@
 //
 //  Created by yanguo sun on 2022/7/15.
 //
-// todo 显示下载进度条
-// todo 下载的空文件进行标记 或者移除，如果下载的是空文件，那么当前播放的文件就变为list第一个？还是历史记录第一个？
-// list 是否要根据播放记录 排序？还是存储记录排序？
+// todo 显示下载进度条并且name
+// todo 打开后 当前播放显示上一次的状态
+// list 是否要根据播放记录 排序？还是存储记录排序？ 已经播放完的 添加显示全部筛选按钮
+// 添加应用前后台切换逻辑
 #import "ViewController.h"
 #import "PlayerTableViewCell.h"
 #import "PlayerHeaderView.h"
@@ -43,9 +44,9 @@
     if (labs(message.integerValue - find.duration.integerValue) < 1) {
         [view stopTimer];
         find.done = YES;
+        [self.tableView reloadData];
     }
     [[PINCache sharedCache] setObject:self.playList forKey:@"playHistory"];
-    [self.tableView reloadData];
 }
 
 - (void)viewDidLoad {
