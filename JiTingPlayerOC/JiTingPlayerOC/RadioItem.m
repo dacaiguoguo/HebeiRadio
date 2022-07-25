@@ -8,6 +8,10 @@
 #import "RadioItem.h"
 #import "CategoryTool.h"
 
+@interface RadioItem ()
+@property (nonatomic, copy) NSString *name;
+@end
+
 @implementation RadioItem
 #pragma mark - NSSecureCoding
 
@@ -37,6 +41,19 @@
     NSURL *documentsDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
     NSURL *ret = [documentsDirectoryURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.mp4", self.path.SHA256]];
     return ret;
+}
+
+- (void)setDone:(BOOL)done {
+    _done = done;
+    if (done) {
+        _playing = NO;
+    }
+}
+
+- (void)setUrl:(NSURL *)url {
+    _url = url;
+    _name = url.title;
+    _pathSHA256 = url.path.SHA256;
 }
 
 
@@ -70,7 +87,7 @@
     return serializer;
 }
 
-- (NSURL *)urlAtTime {
+- (NSURL *)documentURLWithTime {
     NSURLComponents *coms = [NSURLComponents componentsWithURL:self.documentURL resolvingAgainstBaseURL:NO];
     coms.fragment = [NSString stringWithFormat:@"t=%@", self.currentTime];
     return coms.URL;
@@ -80,7 +97,7 @@
     return [NSString stringWithFormat:@"name:%@ url:%@ currentTime:%@", _name, _url, _currentTime];
 }
 
-- (NSString *)showTimes {
+- (NSString *)currentTimeShowStr {
     int interval = self.currentTime.intValue;
     NSDateComponentsFormatter *formatter = [[NSDateComponentsFormatter alloc] init];
     NSCalendar *calendar = NSCalendar.currentCalendar;

@@ -21,10 +21,10 @@
 
 - (void)playItem:(RadioItem *)item {
     if (item == nil) {
-        [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.urlAtTime]];
+        [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.documentURLWithTime]];
     } else {
         self.item = item;
-        [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.urlAtTime]];
+        [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.documentURLWithTime]];
     }
 }
 - (void)stopTimer {

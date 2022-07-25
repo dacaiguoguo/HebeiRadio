@@ -44,6 +44,7 @@
             <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
             <connections>
                 <outlet property="nameLabel" destination="h6r-Cy-CUw" id="R4X-sq-KUS"/>
+                <outlet property="playButton" destination="TeZ-Er-1iH" id="VFB-mn-YNG"/>
             </connections>
             <point key="canvasLocation" x="137.68115942028987" y="83.035714285714278"/>
         </tableViewCell>

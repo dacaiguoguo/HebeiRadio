@@ -11,7 +11,9 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-
+    [self.playButton setImage:[UIImage systemImageNamed:@"play"] forState:UIControlStateNormal];
+    self.playButton.layer.borderColor = UIColor.darkGrayColor.CGColor;
+    self.playButton.layer.borderWidth = 1;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

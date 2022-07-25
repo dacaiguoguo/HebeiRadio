@@ -4,7 +4,7 @@
 //
 //  Created by yanguo sun on 2022/7/15.
 //
-// todo 显示下载进度条并且name
+// todo 显示下载进度条并且name,
 // todo 打开后 当前播放显示上一次的状态
 // list 是否要根据播放记录 排序？还是存储记录排序？ 已经播放完的 添加显示全部筛选按钮
 // 添加应用前后台切换逻辑
@@ -33,9 +33,8 @@
 @implementation ViewController
 
 - (void)view:(PlayerHeaderView *)view didReceiveScriptMessage:(NSString *)message {
-    RadioItem *find = [self.playList.rac_sequence filter:^BOOL(RadioItem *value) {
-        return [value.path isEqualToString:view.item.path];
-    }].array.firstObject;
+    RadioItem *find = view.item;
+    self.title = find.name;
     if (!find.duration) {
         AVURLAsset *dsds = [[AVURLAsset alloc] initWithURL:find.documentURL options:@{}];
         find.duration = @(CMTimeGetSeconds(dsds.duration));
@@ -84,6 +83,7 @@
         make.leading.trailing.equalTo(self.view);
         make.height.equalTo(@(6));
     }];
+    self.proView.hidden = YES;
     NSURL *lastUrl = [[PINCache sharedCache] objectForKey:@"destUrl"];
     [self loadAction:lastUrl];
     [self addClearButton];
@@ -225,6 +225,7 @@
         return saveUrl;
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
         [[PINCache sharedCache] removeObjectForKey:@"destUrl"];
+        self.proView.hidden = YES;
         if (error) {
             UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:@"请求报错" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
             [errorAlert addAction:[UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {}]];
@@ -244,9 +245,7 @@
         NSLog(@"File downloaded to: %@", filePath);
         RadioItem *item = [[RadioItem alloc] init];
         item.url = destUrl;
-        AVURLAsset *dsds = [[AVURLAsset alloc] initWithURL:item.documentURL options:@{}];
-        item.duration = @(CMTimeGetSeconds(dsds.duration));
-        item.name = destUrl.title;
+        item.duration = @(CMTimeGetSeconds([AVURLAsset URLAssetWithURL:item.documentURL options:@{}].duration));
         item.size = sizeNumber;
         item.addTime = NSDate.date;
         item.playTime = item.addTime;
@@ -255,12 +254,13 @@
         if (!mut) {
             mut = [NSMutableArray array];
         }
-        [mut addObject:item];
+        [mut insertObject:item atIndex:0];
         [[PINCache sharedCache] setObject:mut forKey:@"playHistory"];
         self.playList = mut;
         [self.statusView playItem:item];
     }];
     [self.proView setProgress:0];
+    self.proView.hidden = NO;
     [self.proView setProgressWithDownloadProgressOfTask:downloadTask animated:YES];
     [downloadTask resume];
 }
@@ -306,15 +306,18 @@
     RadioItem *data = [self.playList objectAtIndex:indexPath.row];
     cell.nameLabel.numberOfLines = 0;
     if (data.done) {
-        cell.nameLabel.text = [NSString stringWithFormat:@"*%@#%@", data.name, [data showTimes]];;
+        cell.nameLabel.text = [NSString stringWithFormat:@"*%@#%@", data.name, [data currentTimeShowStr]];;
     } else {
-        cell.nameLabel.text = [NSString stringWithFormat:@"%@#%@", data.name, [data showTimes]];;
+        cell.nameLabel.text = [NSString stringWithFormat:@"%@#%@", data.name, [data currentTimeShowStr]];;
     }
     if ([data.path isEqualToString:self.statusView.item.path]) {
+        [cell.playButton setImage:[UIImage systemImageNamed:@"pause"] forState:UIControlStateNormal];
         cell.contentView.backgroundColor = [UIColor colorWithRed:0xbb/255.0 green:0xff/255.0 blue:0xaa/255.0 alpha:1];
     } else {
+        [cell.playButton setImage:[UIImage systemImageNamed:@"play"] forState:UIControlStateNormal];
         cell.contentView.backgroundColor = UIColor.whiteColor;
     }
+
     cell.delegate = self;
     cell.pickerView.delegate = self;
     cell.pickerView.dataSource = self;
@@ -324,7 +327,13 @@
 - (void)cell:(PlayerTableViewCell *)cell infoAction:(id)sender {
     NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
     RadioItem *data = [self.playList objectAtIndex:indexPath.row];
-    [self.statusView playItem:data];
+    if ([data.path isEqualToString:self.statusView.item.path]) {
+        [cell.playButton setImage:[UIImage systemImageNamed:@"play"] forState:UIControlStateNormal];
+        cell.contentView.backgroundColor = [UIColor colorWithRed:0xbb/255.0 green:0xff/255.0 blue:0xaa/255.0 alpha:1];
+    } else {
+        [cell.playButton setImage:[UIImage systemImageNamed:@"pause"] forState:UIControlStateNormal];
+        [self.statusView playItem:data];
+    }
     [self.tableView reloadData];
 }
 
@@ -341,39 +350,39 @@
     [vc.view addSubview:pickerView];
 
     NSString *title = data.name;
-    UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:title message:data.currentTime preferredStyle:UIAlertControllerStyleActionSheet];
-    [editRadiusAlert setValue:vc forKey:@"contentViewController"];
+
+    UIAlertAction *doneAction = [UIAlertAction actionWithTitle:@"从此播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+        if (self.tempRow >= 0) {
+            data.currentTime = [NSString stringWithFormat:@"%ld", (long)self.tempRow * 60];
+            [self.statusView updateWebview];
+            [self.statusView playItem:data];
+            [[PINCache sharedCache] setObject:self.playList forKey:@"playHistory"];
+            [self.tableView reloadData];
+            self.tempRow = -1;
+        }
+    }];
+    UIAlertController *actionAlert = [UIAlertController alertControllerWithTitle:title message:data.currentTime preferredStyle:UIAlertControllerStyleActionSheet];
+    [actionAlert addAction:doneAction];
+
+    [actionAlert setValue:vc forKey:@"contentViewController"];
     UIAlertAction *playAction = [UIAlertAction actionWithTitle:@"直接播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
         [self.statusView playItem:data];
         [self.tableView reloadData];
     }];
-    [editRadiusAlert addAction:playAction];
+    [actionAlert addAction:playAction];
 
     UIAlertAction *playSafariAction = [UIAlertAction actionWithTitle:@"Safari播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
         [UIApplication.sharedApplication openURL:url options:@{} completionHandler:^(BOOL success) {
 
         }];
     }];
-    [editRadiusAlert addAction:playSafariAction];
+    [actionAlert addAction:playSafariAction];
 
-    UIAlertAction *doneAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-        if (self.tempRow >= 0) {
-            data.currentTime = [NSString stringWithFormat:@"%ld", (long)self.tempRow * 60];
-            NSMutableArray *mut = self.playList.mutableCopy;
-            mut[indexPath.row] = data;
-            [[PINCache sharedCache] setObject:mut forKey:@"playHistory"];
-            [self.statusView updateWebview];
-            [self.statusView playItem:data];
-            self.playList = mut;
-            [self.tableView reloadData];
-            self.tempRow = -1;
-        }
-    }];
-    [editRadiusAlert addAction:doneAction];
+
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
     }];
-    [editRadiusAlert addAction:cancelAction];
-    [self presentViewController:editRadiusAlert animated:YES completion:^{
+    [actionAlert addAction:cancelAction];
+    [self presentViewController:actionAlert animated:YES completion:^{
         [self.tableView reloadData];
     }];
 }

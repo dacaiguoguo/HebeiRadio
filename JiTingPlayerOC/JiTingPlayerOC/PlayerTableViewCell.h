@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 @interface PlayerTableViewCell : UITableViewCell
+@property (strong, nonatomic) IBOutlet UIButton *playButton;
 @property (nonatomic, weak) NSObject<PlayerTableViewCellDelegate> *delegate;
 @property (strong, nonatomic) IBOutlet UILabel *nameLabel;
 - (IBAction)infoAction:(id)sender;

@@ -14,16 +14,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSDate *addTime;
 @property (nonatomic, copy) NSDate *playTime;
 @property (nonatomic, copy) NSString *info;
-@property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *pathSHA256;
 @property (nonatomic, copy) NSNumber *duration;
 @property (nonatomic, copy) NSString *currentTime;
 @property (nonatomic, readonly) NSString *path;
-@property (nonatomic, readonly) NSURL *urlAtTime;
+@property (nonatomic, copy, readonly) NSString *name;
+@property (nonatomic, readonly) NSURL *documentURLWithTime;
 @property (nonatomic, readonly) NSURL *documentURL;
 @property (nonatomic, copy) NSNumber *size;
 @property (nonatomic, assign) BOOL done;
-- (NSString *)showTimes;
+@property (nonatomic, assign) BOOL playing;
+- (NSString *)currentTimeShowStr;
 @end
 
 NS_ASSUME_NONNULL_END
