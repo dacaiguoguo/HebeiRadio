@@ -150,12 +150,19 @@
     }
     if (self.playList.count == 0) {
         UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:@"去添加" message:nil preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *playSafariAction = [UIAlertAction actionWithTitle:@"打开备忘录" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-            [UIApplication.sharedApplication openURL:[NSURL URLWithString:@"mobilenotes://"] options:@{} completionHandler:^(BOOL success) {
+        UIAlertAction *playSafariAction = [UIAlertAction actionWithTitle:@"打开JiTing" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+            [UIApplication.sharedApplication openURL:[NSURL URLWithString:@"jiting://"] options:@{} completionHandler:^(BOOL success) {
 
             }];
         }];
         [editRadiusAlert addAction:playSafariAction];
+
+        UIAlertAction *openNote = [UIAlertAction actionWithTitle:@"打开备忘录" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+            [UIApplication.sharedApplication openURL:[NSURL URLWithString:@"mobilenotes://"] options:@{} completionHandler:^(BOOL success) {
+
+            }];
+        }];
+        [editRadiusAlert addAction:openNote];
         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
         }];
         [editRadiusAlert addAction:cancelAction];
@@ -208,6 +215,7 @@
                 }
                 [self.statusView playItem:data];
             } else {
+                // 如果被清除了？就重新下载
                 [self downloadUrl:destUrl];
             }
             break;
