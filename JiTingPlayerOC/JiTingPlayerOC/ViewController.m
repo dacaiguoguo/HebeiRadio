@@ -35,12 +35,13 @@
 - (void)view:(PlayerHeaderView *)view didReceiveScriptMessage:(NSString *)message {
     RadioItem *find = view.item;
     self.title = find.name;
+    find.playTime = NSDate.date;
     if (!find.duration) {
         AVURLAsset *dsds = [[AVURLAsset alloc] initWithURL:find.documentURL options:@{}];
         find.duration = @(CMTimeGetSeconds(dsds.duration));
     }
     find.currentTime = [NSString stringWithFormat:@"%ld", message.integerValue];
-    if (labs(message.integerValue - find.duration.integerValue) < 1) {
+    if (fabs(message.floatValue - find.duration.floatValue) < 0.5) {
         [view stopTimer];
         find.done = YES;
         [self.tableView reloadData];
@@ -87,6 +88,9 @@
     NSURL *lastUrl = [[PINCache sharedCache] objectForKey:@"destUrl"];
     [self loadAction:lastUrl];
     [self addClearButton];
+
+    RadioItem *lastItem = [self lastItem];
+    [self.statusView playItem:lastItem];
 }
 
 - (void)addClearButton {
@@ -174,13 +178,14 @@
     NSArray<RadioItem *> *allPlayedItemsSorted = [allPlayedItems sortedArrayUsingComparator:^NSComparisonResult(RadioItem *obj1, RadioItem *obj2) {
         return [obj1.playTime compare:obj2.playTime];
     }];
-    return allPlayedItemsSorted.firstObject;
+    return allPlayedItemsSorted.lastObject;
 }
 
 - (void)loadAction:(NSURL *)destUrl {
     if (!destUrl) {
         return;
     }
+    // 防止重复下载，如果已经下载就提示是否立即播放？
     NSArray<RadioItem *> *array = [[PINCache sharedCache] objectForKey:@"playHistory"];
     BOOL hasAdd = NO;
     for (RadioItem *data in array) {
@@ -190,23 +195,22 @@
             if ([NSFileManager.defaultManager fileExistsAtPath:docUrl.path]) {
                 NSDictionary<NSFileAttributeKey, id> *att =  [NSFileManager.defaultManager attributesOfItemAtPath:docUrl.path error:nil];
                 NSNumber *sizeNumber = att[NSFileSize];
-                if (sizeNumber.longValue == 0) {
-                    NSLog(@"File empty not play");
+                if (sizeNumber.longValue > 0) {
                     // 应该alert移除
-                    UIAlertController *editRadiusAlert = [UIAlertController alertControllerWithTitle:@"文件为空" message:nil preferredStyle:UIAlertControllerStyleAlert];
-                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
-                        [[PINCache sharedCache] removeObjectForKey:@"destUrl"];
+                    UIAlertController *actionAlert = [UIAlertController alertControllerWithTitle:@"文件已经下载" message:@"是否立即播放？" preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction *playAction = [UIAlertAction actionWithTitle:@"播放" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
+                        [self.statusView playItem:data];
                     }];
-                    [editRadiusAlert addAction:cancelAction];
-                    [self presentViewController:editRadiusAlert animated:YES completion:^{
-
-                    }];
+                    [actionAlert addAction:playAction];
+                    [actionAlert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {}]];
+                    [self presentViewController:actionAlert animated:YES completion:^{}];
                     return;
                 }
                 [self.statusView playItem:data];
             } else {
                 [self downloadUrl:destUrl];
             }
+            break;
         }
     }
 
@@ -216,6 +220,9 @@
 }
 
 - (void)downloadUrl:(NSURL *)destUrl {
+    if (!destUrl) {
+        return;
+    }
     NSURLRequest *request = [NSURLRequest requestWithURL:destUrl];
     NSURLSessionDownloadTask *downloadTask = [self.manager downloadTaskWithRequest:request
                                                                           progress:^(NSProgress * _Nonnull downloadProgress) {
@@ -236,7 +243,6 @@
         NSNumber *sizeNumber = att[NSFileSize];
         if (sizeNumber.longValue == 0) {
             NSLog(@"File empty downloaded");
-            // 应该alert移除
             UIAlertController *emptyAlert = [UIAlertController alertControllerWithTitle:@"文件为空" message:nil preferredStyle:UIAlertControllerStyleAlert];
             [emptyAlert addAction:[UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {}]];
             [self presentViewController:emptyAlert animated:YES completion:^{}];
@@ -298,7 +304,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 100;
+    return 66;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -333,6 +339,7 @@
     } else {
         [cell.playButton setImage:[UIImage systemImageNamed:@"pause"] forState:UIControlStateNormal];
         [self.statusView playItem:data];
+        [[PINCache sharedCache] setObject:self.playList forKey:@"playHistory"];
     }
     [self.tableView reloadData];
 }
@@ -342,29 +349,29 @@
     RadioItem *data = [self.playList objectAtIndex:indexPath.row];
     NSURL *url = data.url;
     self.rowCount = data.duration.intValue / 60;
+
+    UIAlertController *actionAlert = [UIAlertController alertControllerWithTitle:data.name message:data.currentTimeShowStr preferredStyle:UIAlertControllerStyleActionSheet];
+
     UIViewController *vc = [[UIViewController alloc] init];
     vc.preferredContentSize = CGSizeMake(self.view.bounds.size.width, 200);
     UIPickerView *pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 200)];
     pickerView.delegate = self;
     pickerView.dataSource = self;
     [vc.view addSubview:pickerView];
+    [actionAlert setValue:vc forKey:@"contentViewController"];
 
-    NSString *title = data.name;
 
     UIAlertAction *doneAction = [UIAlertAction actionWithTitle:@"从此播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
         if (self.tempRow >= 0) {
             data.currentTime = [NSString stringWithFormat:@"%ld", (long)self.tempRow * 60];
             [self.statusView updateWebview];
             [self.statusView playItem:data];
-            [[PINCache sharedCache] setObject:self.playList forKey:@"playHistory"];
             [self.tableView reloadData];
             self.tempRow = -1;
         }
     }];
-    UIAlertController *actionAlert = [UIAlertController alertControllerWithTitle:title message:data.currentTime preferredStyle:UIAlertControllerStyleActionSheet];
     [actionAlert addAction:doneAction];
 
-    [actionAlert setValue:vc forKey:@"contentViewController"];
     UIAlertAction *playAction = [UIAlertAction actionWithTitle:@"直接播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
         [self.statusView playItem:data];
         [self.tableView reloadData];
@@ -372,19 +379,15 @@
     [actionAlert addAction:playAction];
 
     UIAlertAction *playSafariAction = [UIAlertAction actionWithTitle:@"Safari播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-        [UIApplication.sharedApplication openURL:url options:@{} completionHandler:^(BOOL success) {
-
-        }];
+        [UIApplication.sharedApplication openURL:url options:@{} completionHandler:^(BOOL success) {}];
     }];
     [actionAlert addAction:playSafariAction];
 
 
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
-    }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {}];
     [actionAlert addAction:cancelAction];
-    [self presentViewController:actionAlert animated:YES completion:^{
-        [self.tableView reloadData];
-    }];
+
+    [self presentViewController:actionAlert animated:YES completion:^{}];
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {

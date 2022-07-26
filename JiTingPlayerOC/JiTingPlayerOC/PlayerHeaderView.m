@@ -21,7 +21,9 @@
 
 - (void)playItem:(RadioItem *)item {
     if (item == nil) {
-        [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.documentURLWithTime]];
+        if (self.item) {
+            [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.documentURLWithTime]];
+        }
     } else {
         self.item = item;
         [self.contentWebView loadRequest:[NSURLRequest requestWithURL:self.item.documentURLWithTime]];
