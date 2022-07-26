@@ -8,6 +8,7 @@
 // todo 打开后 当前播放显示上一次的状态
 // list 是否要根据播放记录 排序？还是存储记录排序？ 已经播放完的 添加显示全部筛选按钮
 // 添加应用前后台切换逻辑
+// 清理文件后 记录还在，清理记录后还在播放 导致记录重新生成，但文件不在，下次再打开时就播放不了了，
 #import "ViewController.h"
 #import "PlayerTableViewCell.h"
 #import "PlayerHeaderView.h"
