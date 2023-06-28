@@ -86,12 +86,7 @@
         make.height.equalTo(@(6));
     }];
     self.proView.hidden = YES;
-    NSURL *lastUrl = [[PINCache sharedCache] objectForKey:@"destUrl"];
-    [self loadAction:lastUrl];
     [self addClearButton];
-
-    RadioItem *lastItem = [self lastItem];
-    [self.statusView playItem:lastItem];
 }
 
 - (void)addClearButton {
@@ -118,7 +113,10 @@
         NSString *folderSizeStr = [NSByteCountFormatter stringFromByteCount:[PINCache.sharedCache diskCache].byteCount countStyle:NSByteCountFormatterCountStyleFile];
 
         UIAlertAction *cacheRecordAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"清理记录 %@", folderSizeStr] style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+            [self.statusView removeFromSuperview];
+            self.playList = nil;
             [PINCache.sharedCache removeAllObjects];
+            exit(0);
         }];
         [removeAlert addAction:cacheRecordAction];
 
@@ -146,6 +144,11 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    NSURL *lastUrl = [[PINCache sharedCache] objectForKey:@"destUrl"];
+    [self loadAction:lastUrl];
+    RadioItem *lastItem = [self lastItem];
+    [self.statusView playItem:lastItem];
+    [self.tableView reloadData];
     for (RadioItem *data in self.playList) {
         NSLog(@"%@", data);
     }
@@ -204,9 +207,10 @@
                 NSDictionary<NSFileAttributeKey, id> *att =  [NSFileManager.defaultManager attributesOfItemAtPath:docUrl.path error:nil];
                 NSNumber *sizeNumber = att[NSFileSize];
                 if (sizeNumber.longValue > 0) {
+                    [[PINCache sharedCache] removeObjectForKey:@"destUrl"];
                     // 应该alert移除
                     UIAlertController *actionAlert = [UIAlertController alertControllerWithTitle:@"文件已经下载" message:@"是否立即播放？" preferredStyle:UIAlertControllerStyleAlert];
-                    UIAlertAction *playAction = [UIAlertAction actionWithTitle:@"播放" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
+                    UIAlertAction *playAction = [UIAlertAction actionWithTitle:@"播放" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
                         [self.statusView playItem:data];
                     }];
                     [actionAlert addAction:playAction];
@@ -214,7 +218,6 @@
                     [self presentViewController:actionAlert animated:YES completion:^{}];
                     return;
                 }
-                [self.statusView playItem:data];
             } else {
                 // 如果被清除了？就重新下载
                 [self downloadUrl:destUrl];
